@@ -796,6 +796,7 @@ MonoBehaviour:
   wardingSuccesses: 0
   loreSuccesses: 0
   occultismSuccesses: 0
+  rolledStatAmount: 0
 --- !u!114 &419450576
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -808,16 +809,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0d7d15545b54aa419090551f05da5b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RitualManager
-  player: {fileID: 11400000, guid: a3d35da488dd8494fa334934cd289829, type: 2}
   turnCounter: 0
-  maxTurns: 10
+  maxTurns: 12
   remainingMaxTurns: 10
   ritualProgressCounter: 0
-  ritualProgressMax: 10
+  ritualProgressMax: 16
   wardingAmount: 0
   monsters: []
   monsterPrefabs:
   - {fileID: 8806308684048865454, guid: 322ca15e4ff4ae1429a58690a512e803, type: 3}
+  solvedMonsters: []
 --- !u!4 &419450577
 Transform:
   m_ObjectHideFlags: 0
@@ -1865,9 +1866,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 419450575}
-        m_TargetAssemblyTypeName: DiceRollManager, Assembly-CSharp
-        m_MethodName: RollLoreDice
+      - m_Target: {fileID: 419450576}
+        m_TargetAssemblyTypeName: RitualManager, Assembly-CSharp
+        m_MethodName: Lore
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
