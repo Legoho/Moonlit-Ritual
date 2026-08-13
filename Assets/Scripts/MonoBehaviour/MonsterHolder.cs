@@ -20,11 +20,16 @@ public class MonsterHolder : MonoBehaviour
         stabilityDamage = monsterData.stabilityDamage;
         loreToSolve = monsterData.loreToSolve;
         ritualManager = FindFirstObjectByType<RitualManager>();
+        isSolved = monsterData.isSolved;
     }
     public void ResetResistance()
     {
         Debug.Log("Monster resistance reset");
         originalResistance = monsterData.resistance;
+        if(isSolved)
+        {
+            originalResistance = monsterData.solvedResistance;
+        }
     }
     public void Die()
     {

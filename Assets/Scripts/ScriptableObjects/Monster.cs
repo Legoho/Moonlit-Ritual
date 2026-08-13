@@ -9,4 +9,5 @@ public class Monster : ScriptableObject
     public int solvedResistance; //hp when solved
     public int loreToSolve; //lore needed to solve
     public int stabilityDamage;
+    public bool isSolved = false;
 }

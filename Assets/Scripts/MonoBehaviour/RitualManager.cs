@@ -17,17 +17,21 @@ public class RitualManager : MonoBehaviour
 
     private readonly List<MonsterHolder> validTargets = new();
     private Action<MonsterHolder> onMonsterSelected;
+    [SerializeField]
+    private SliderManager sliderManager;
 
     public void TakeDamage(int damageAmount)
     {
         damageAmount -= GetComponent<DiceRollManager>().wardingSuccesses;
         remainingMaxTurns -= damageAmount;
+        sliderManager.UpdateTurnSlider(turnCounter, remainingMaxTurns);
         isLost();
     }
 
     private void ProgressRitual()
     {
         ritualProgressCounter += GetComponent<DiceRollManager>().occultismSuccesses;
+        sliderManager.UpdateRitualProgressSlider(ritualProgressCounter);
         isWon();
     }
 
@@ -88,7 +92,7 @@ public class RitualManager : MonoBehaviour
                 selected.loreToSolve -= GetComponent<DiceRollManager>().loreSuccesses;
                 if (selected.loreToSolve <= 0)
                 {
-                    selected.isSolved = true;
+                    selected.GetMonsterData().isSolved = true;
                     solvedMonsters.Add(selected.GetMonsterData());
                     Debug.Log($"Monster {selected.gameObject.name} is solved!");
                     foreach (var monster in monsters)
@@ -174,6 +178,7 @@ public class RitualManager : MonoBehaviour
         ProgressRitual();
         GetComponent<DiceRollManager>().ResetDiceRolls();
         turnCounter++;
+        sliderManager.UpdateTurnSlider(turnCounter, remainingMaxTurns);
         isLost();
         isWon();
     }
