@@ -78,7 +78,7 @@ public class RitualManager : MonoBehaviour
             if (!monster.isSolved)
             {
                 Debug.Log("Highlighting monster: " + monster.gameObject.name);
-                monster.Highlight();
+                monster.Highlight(false);
             }
         }
         GetComponent<DiceRollManager>().RollLoreDice();
@@ -116,7 +116,7 @@ public class RitualManager : MonoBehaviour
                 continue;
 
             validTargets.Add(monster);
-            monster.Highlight();
+            monster.Highlight(false);
         }
 
         if (validTargets.Count == 0)
@@ -176,6 +176,10 @@ public class RitualManager : MonoBehaviour
         AddMonster();
         AddMonster();
         ProgressRitual();
+        TurnStep();
+    }
+    private void TurnStep() 
+    {
         GetComponent<DiceRollManager>().ResetDiceRolls();
         turnCounter++;
         sliderManager.UpdateTurnSlider(turnCounter, remainingMaxTurns);

@@ -49,9 +49,10 @@ public class MonsterHolder : MonoBehaviour
     }
 
 
-    public void Highlight()
+    public void Highlight(bool isDamage=true)
     {
         highlight.SetActive(true);
+        highlight.GetComponent<SpriteRenderer>().color = isDamage ? Color.red : Color.greenYellow;
     }
     public void RemoveHighlight() 
     {

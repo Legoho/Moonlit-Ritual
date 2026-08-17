@@ -10,4 +10,6 @@ public class Monster : ScriptableObject
     public int loreToSolve; //lore needed to solve
     public int stabilityDamage;
     public bool isSolved = false;
+    public Sprite monsterSprite;
+    public Sprite monsterHighlightSprite;
 }

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acf932373cd76f2438e3d887407c36b5, type: 3}
+  m_Name: 04WardEater
+  m_EditorClassIdentifier: Assembly-CSharp::Monster
+  monsterName: Ward eater
+  monsterDescription: A ghost of considerable power, they try to stop purifications
+    from happening by destroying the wards placed by the magical girls.
+  resistance: 2
+  solvedResistance: 1
+  loreToSolve: 4
+  stabilityDamage: 1
+  isSolved: 0
+  monsterSprite: {fileID: 0}
+  monsterHighlightSprite: {fileID: 0}

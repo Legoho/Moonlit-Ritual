@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acf932373cd76f2438e3d887407c36b5, type: 3}
+  m_Name: 01Shade
+  m_EditorClassIdentifier: Assembly-CSharp::Monster
+  monsterName: Shade
+  monsterDescription: A small and realitively friendly spirit of a freshly deceased
+    drawn by the scent of candles.
+  resistance: 1
+  solvedResistance: 1
+  loreToSolve: 1
+  stabilityDamage: 1
+  isSolved: 0
+  monsterSprite: {fileID: -456208036565421745, guid: aab9e8b80d0424c408345e2e2ee35c9a, type: 3}
+  monsterHighlightSprite: {fileID: 5790907846094707647, guid: 69dba689c32555642b1ca14b7198ef00, type: 3}

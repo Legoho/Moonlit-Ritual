@@ -1128,7 +1128,8 @@ MonoBehaviour:
   wardingAmount: 0
   monsters: []
   monsterPrefabs:
-  - {fileID: 8806308684048865454, guid: 322ca15e4ff4ae1429a58690a512e803, type: 3}
+  - {fileID: 8806308684048865454, guid: 0a8f61c477fd4bc40b4b1273573fd8a2, type: 3}
+  - {fileID: 8806308684048865454, guid: 736d16294d2bda3449039bfe45ce96bc, type: 3}
   solvedMonsters: []
   sliderManager: {fileID: 646730524}
 --- !u!4 &419450577
@@ -1390,8 +1391,8 @@ Camera:
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 4
+  m_BackGroundColor: {r: 0.9528302, g: 0.9528302, b: 0.9528302, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
