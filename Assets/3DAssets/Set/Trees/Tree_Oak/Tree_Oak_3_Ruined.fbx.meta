@@ -1,0 +1,49 @@
+fileFormatVersion: 2
+guid: cf7ff3a36d1344978e80f5e62bd2d395
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_bark
+    second: {fileID: 2100000, guid: 09e0e5e0667640d8a018c7e05f78258b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_fungus
+    second: {fileID: 2100000, guid: 0105b01295c74a79a01d943b3ea8a16a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_dry
+    second: {fileID: 2100000, guid: bc31cc46c5914d8da9c97b785643dd29, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood_light
+    second: {fileID: 2100000, guid: 356afd11f65544f5b51eeb664b1b9832, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

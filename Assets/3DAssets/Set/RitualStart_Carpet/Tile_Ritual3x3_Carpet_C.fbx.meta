@@ -1,0 +1,89 @@
+fileFormatVersion: 2
+guid: 6ffcd7180fa0465dbf3442c4da982a4b
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_arcane_glow
+    second: {fileID: 2100000, guid: 9276c76eb72542fc81090b6c765fc67d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_brass
+    second: {fileID: 2100000, guid: 41652c28b1e245969afb2723aa9388f4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cable
+    second: {fileID: 2100000, guid: e6d2c9a133bb45c7b8767f86021976fd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_carpet
+    second: {fileID: 2100000, guid: c2f6cdfa892c45f590d68a4008a002f8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_carpet_dark
+    second: {fileID: 2100000, guid: 74f0553f08d4444e849a52c549990624, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_flame
+    second: {fileID: 2100000, guid: cc5909537773452991620238e36c09ce, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_floor_a
+    second: {fileID: 2100000, guid: a8cbf5ca9d1b4c43879c93c10b2abef4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_floor_b
+    second: {fileID: 2100000, guid: 74633c6c37bd4203b4033036e2276364, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_gold
+    second: {fileID: 2100000, guid: 0c9b8752e5fe45b39e1a9fbdebb5cd3c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_paper
+    second: {fileID: 2100000, guid: 4e6d41c3e32846a690ff48dd64c27e1c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wax
+    second: {fileID: 2100000, guid: 3449753a326d4e078de47ca587957ef5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood_dark
+    second: {fileID: 2100000, guid: 4f2b20096f474bf5b3fd074df49d91d0, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,54 @@
+fileFormatVersion: 2
+guid: 45dd16bf70e34489b67da502156375f2
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_floor_a
+    second: {fileID: 2100000, guid: 89702d0237c4423b84934cda3508246e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_floor_b
+    second: {fileID: 2100000, guid: b2d72d16ee0c41988a3ea5cf6a0abeae, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_hole
+    second: {fileID: 2100000, guid: 1bcbe97e86da46339cf26680116b47f7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_iron
+    second: {fileID: 2100000, guid: 2569f6db80c34069a106eab5ac455197, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood_dark
+    second: {fileID: 2100000, guid: 275cb36f31474ea192febd05539a35c7, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

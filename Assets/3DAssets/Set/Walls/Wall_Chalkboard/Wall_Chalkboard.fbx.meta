@@ -1,0 +1,74 @@
+fileFormatVersion: 2
+guid: 1b26e56a51c6448bb38b26672fe84349
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_brick
+    second: {fileID: 2100000, guid: 997ce907319b43d49882353e07072a14, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_chalk
+    second: {fileID: 2100000, guid: 65db4394b13d412a8d858a00b88ecb60, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_chalkboard
+    second: {fileID: 2100000, guid: b97d1bd83c7147899f10829736ef48bc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_mortar
+    second: {fileID: 2100000, guid: 45b24a0cd46c485baf8b63cf4fe64a4e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_stone
+    second: {fileID: 2100000, guid: ec43b53473f04a23a1086bcc4513b258, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_stone_b
+    second: {fileID: 2100000, guid: 377a111834ab4be0a84f3ae1009cb002, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wall_green
+    second: {fileID: 2100000, guid: c24b64a425cc4dad9001d4bdf03589a2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood
+    second: {fileID: 2100000, guid: faf4fc64b888426b91b09ba1fb24aade, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood_dark
+    second: {fileID: 2100000, guid: 967c722be26d4de5b6d24bddc32a98ae, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

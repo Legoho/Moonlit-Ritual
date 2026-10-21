@@ -1,0 +1,69 @@
+fileFormatVersion: 2
+guid: c12fa94de57344668d7be8532cb240f4
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_brick
+    second: {fileID: 2100000, guid: a3ed1684463f4f9a8233829075135094, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_glass_win
+    second: {fileID: 2100000, guid: 1d919ac23f69442b8d18472209c1480d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_mortar
+    second: {fileID: 2100000, guid: e5336bb634eb47658aaa43e9b081bfaa, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_stone
+    second: {fileID: 2100000, guid: 84b13b1a797d4f7d89c59b057c3e332c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_stone_b
+    second: {fileID: 2100000, guid: 454982e116514781b2107b63d7594b22, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wall_green
+    second: {fileID: 2100000, guid: ac184cb6a9924c8c9763bfa6ce505923, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood
+    second: {fileID: 2100000, guid: 268378f2d899408ba7643a6155a8985a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood_dark
+    second: {fileID: 2100000, guid: 9646bdcac02a4aa4a9a636c311ddc086, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

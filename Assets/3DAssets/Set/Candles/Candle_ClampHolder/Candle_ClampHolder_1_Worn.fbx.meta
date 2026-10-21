@@ -1,0 +1,54 @@
+fileFormatVersion: 2
+guid: 2ee2f33b417c45a59ccffe44017f08fd
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_brass
+    second: {fileID: 2100000, guid: f39c06518e0f43448f95a2ca7f6a07b2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cable
+    second: {fileID: 2100000, guid: b7b0e727bd474776a722aa9554048025, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_crack
+    second: {fileID: 2100000, guid: 8ad5f4f1b359485891866b75f54585e0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_iron
+    second: {fileID: 2100000, guid: 7f260ae94ac24074bc5e86181cd50e28, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wax_black
+    second: {fileID: 2100000, guid: b003fee7f2e34bacb9acdcba2104df59, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

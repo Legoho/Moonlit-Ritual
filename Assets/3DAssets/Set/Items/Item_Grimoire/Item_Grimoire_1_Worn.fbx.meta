@@ -1,0 +1,69 @@
+fileFormatVersion: 2
+guid: dda9591f6f3245ecad8db57bfb0457f6
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cover_navy
+    second: {fileID: 2100000, guid: 0f1a5b7046634f559c817b914f1831a8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_gem_purple
+    second: {fileID: 2100000, guid: e72c30d861594e13a1077313013cbf02, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_gold
+    second: {fileID: 2100000, guid: 5b100a8301464319a57f64365c282dbb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_paper
+    second: {fileID: 2100000, guid: d2ac36fa499d49d982711969437b6a60, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_ribbon
+    second: {fileID: 2100000, guid: c05235a63a4b42b083d86a79cd8c5c4a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_silver
+    second: {fileID: 2100000, guid: 537b9779d2464d458192ecdf6a4277f5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_sun_glow
+    second: {fileID: 2100000, guid: 5f8fce5579484c5aa59dbaa1f08997ee, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_vellum
+    second: {fileID: 2100000, guid: 00ebc5fccc9e4671b2a62f9663dd3b40, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

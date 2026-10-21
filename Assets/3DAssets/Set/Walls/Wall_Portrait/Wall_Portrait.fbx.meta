@@ -1,0 +1,89 @@
+fileFormatVersion: 2
+guid: 6b522b96438a4d07960640f8afdf160c
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_brick
+    second: {fileID: 2100000, guid: 442dec203c01468a870c18233ba220d3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cable
+    second: {fileID: 2100000, guid: 814cfb9cc68f4e47ad19d5163cb0fb11, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_canvas
+    second: {fileID: 2100000, guid: 97e37de83fe9438b9af2a824e88cd1f2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_gold
+    second: {fileID: 2100000, guid: 09bd26ba609e44aaad4c501461cf2c59, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_hole
+    second: {fileID: 2100000, guid: 1ef2d77990374f4abbbd6da950c523bb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_mortar
+    second: {fileID: 2100000, guid: f6c78c706a7f474d8b15ec8b7e4766ba, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_paint_skin
+    second: {fileID: 2100000, guid: 5e0ac3c9094549669d78d25424c2b573, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_stone
+    second: {fileID: 2100000, guid: d530f84b861d4c51b25953493e7e07c3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_stone_b
+    second: {fileID: 2100000, guid: 463f95ced5414c2daa5fe4366b882a52, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wall_green
+    second: {fileID: 2100000, guid: 9442847e81a34da193e95dc097495f52, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood
+    second: {fileID: 2100000, guid: cd32d4eb396c4ef0b43ef9b5285330cc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood_dark
+    second: {fileID: 2100000, guid: 0067e0ba6f314341a7d9093d46113094, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

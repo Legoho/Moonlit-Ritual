@@ -1,0 +1,49 @@
+fileFormatVersion: 2
+guid: 5ce89b01c42f4f9eb62361e11cd3fa7e
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_bark
+    second: {fileID: 2100000, guid: 09e0e5e0667640d8a018c7e05f78258b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_ivy
+    second: {fileID: 2100000, guid: fb666646c4af4d488be4d45f47d4830e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_oak
+    second: {fileID: 2100000, guid: 9ddc7a17f19e42f3af06efb9ccff17ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_oak2
+    second: {fileID: 2100000, guid: 6712a22f25424d8a94476c2f7d5e320a, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

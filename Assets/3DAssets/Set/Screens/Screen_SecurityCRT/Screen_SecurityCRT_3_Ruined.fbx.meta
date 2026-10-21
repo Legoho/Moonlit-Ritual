@@ -1,0 +1,89 @@
+fileFormatVersion: 2
+guid: 5fffd58ac7fa456cbf404cb92e185561
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cable
+    second: {fileID: 2100000, guid: 53202e05bca34814a3ad09ab38b07043, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_copper
+    second: {fileID: 2100000, guid: 0df4dfe8a2ac4f9388f5c8d682527c6c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_crack
+    second: {fileID: 2100000, guid: c225affe10d64124b312e52de88e1668, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_glass
+    second: {fileID: 2100000, guid: 61d6b923b38a4f1cb3f685764a53867a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_hole
+    second: {fileID: 2100000, guid: 1a32e813e2b1417eaad32bbfa4d657cb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_iron
+    second: {fileID: 2100000, guid: 7f6e9a68051041cd9348f446db4fa0b3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_led_green
+    second: {fileID: 2100000, guid: 3b159eb0cbf8495283b5866ff8208f85, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_led_red
+    second: {fileID: 2100000, guid: 6d748342971f45bc8ec652c1c28125a1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_plastic_beige
+    second: {fileID: 2100000, guid: a98ffdf2abdd40bc8bbe0b48b73f7ded, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_plastic_dark
+    second: {fileID: 2100000, guid: fe95bce391e24dccb9774af8a7db1244, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_steel
+    second: {fileID: 2100000, guid: 8fd70c4416ef4f16a3efe23de01da9af, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wire_red
+    second: {fileID: 2100000, guid: 5987ed0e045643d79f89515bb28caecd, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

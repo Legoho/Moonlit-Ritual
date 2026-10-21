@@ -1,0 +1,49 @@
+fileFormatVersion: 2
+guid: 83b72e4e17ad4f4cae1cb7d37a6a1f0f
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cane
+    second: {fileID: 2100000, guid: 44adeda686be4adabfb4f7fad26bfc96, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_dry
+    second: {fileID: 2100000, guid: e4a795b195a4425a9f5f2327fbfb386a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_rose
+    second: {fileID: 2100000, guid: 86f67fb737f44829ad4f055613d9fd2f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_rose
+    second: {fileID: 2100000, guid: 60d552e35cc441f099677518b0023aaa, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

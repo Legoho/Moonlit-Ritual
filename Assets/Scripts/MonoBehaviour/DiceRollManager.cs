@@ -1,92 +1,98 @@
+using System;
 using UnityEngine;
+using System.Collections;
 
 public class DiceRollManager : MonoBehaviour
 {
-    public Grimoire grimoire;
-    public int arcanaSuccesses=0;
-    public int wardingSuccesses=0;
-    public int loreSuccesses=0;
-    public int occultismSuccesses=0;
-    public int rolledStatAmount = 0;
+    [Tooltip("Optional. Leave empty to resolve rolls instantly (useful for testing).")]
+    [SerializeField] private DiceRollVisualizer visualizer;
+    [SerializeField] private ButtonTextManager buttonTextManager;
+    [Tooltip("Off: skip the 3D dice and apply results instantly.")]
+    [SerializeField] private bool showDiceAnimation = true;
+    [Tooltip("If the dice haven't finished after this many seconds, the result is applied anyway.")]
+    [SerializeField] private float maxRollSeconds = 5f;
 
-    public void RollArcanaDice()
+    public bool IsRolling => visualizer != null && visualizer.IsRolling;
+
+    private void Awake()
     {
-        if (rolledStatAmount >= 2)
-            return;
-        int successCount = arcanaSuccesses;
-        for (int i = 0; i < grimoire.arcana; i++)
+        if (visualizer == null) visualizer = FindAnyObjectByType<DiceRollVisualizer>();
+        if (buttonTextManager == null) buttonTextManager = FindAnyObjectByType<ButtonTextManager>();
+    }
+
+    /// <summary>
+    /// Rolls a pool and returns the result straight away (it is decided before the throw).
+    /// onResolved is called once the result has been shown.
+    /// </summary>
+    public DiceRollResult Roll(Discipline discipline, int pool, Action<DiceRollResult> onResolved)
+    {
+        DiceRollResult result = DiceRules.RollPool(discipline, pool);
+        Debug.Log("Rolled: " + result);
+
+        bool resolved = false;
+        void Resolve(DiceRollResult r)
         {
-            int roll = RollDice(6); // Roll a 6-sided die
-            if (roll>=5)
-            {
-                successCount++;
-            }
-            Debug.Log("Arcana Dice Roll: " + roll);
+            if (resolved) return; // the watchdog and a late visualizer must not apply it twice
+            resolved = true;
+            if (buttonTextManager != null) buttonTextManager.ShowRoll(r);
+            onResolved?.Invoke(r);
         }
-        rolledStatAmount++;
-        arcanaSuccesses = successCount;
-    }
-    public void RollWardingDice() 
-    {
-        if (rolledStatAmount >= 2)
-            return;
-        int successCount = wardingSuccesses;
-        for (int i = 0; i < grimoire.warding; i++)
+
+        if (showDiceAnimation && visualizer != null && visualizer.isActiveAndEnabled && pool > 0)
         {
-            int roll = RollDice(6); // Roll a 6-sided die
-            if (roll >= 5)
+            try
             {
-                successCount++;
+                visualizer.Show(result, Resolve);
             }
-            Debug.Log("Warding Dice Roll: " + roll);
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                Resolve(result);
+                return result;
+            }
+            StartCoroutine(Watchdog(result, Resolve, () => resolved));
         }
-        rolledStatAmount++;
-        wardingSuccesses = successCount;
-    }
-    public void RollLoreDice() 
-    {
-        if (rolledStatAmount >= 2)
-            return;
-        int successCount = loreSuccesses;
-        for (int i = 0; i < grimoire.lore; i++)
+        else
         {
-            int roll = RollDice(6); // Roll a 6-sided die
-            if (roll >= 5)
-            {
-                successCount++;
-            }
-            Debug.Log("Lore Dice Roll: " + roll);
+            Resolve(result);
         }
-        rolledStatAmount++;
-        loreSuccesses = successCount;
+
+        return result;
     }
-    public void RollOccultismDice() 
+
+    /// <summary>
+    /// Safety net: if the dice animation hasn't reported back in time (stuck die, error in the
+    /// visualizer, disabled object...), skip it; if it still hasn't finished, apply the result directly.
+    /// The numbers were decided before the throw, so the outcome is the same either way.
+    /// </summary>
+    private IEnumerator Watchdog(DiceRollResult result, Action<DiceRollResult> resolve, Func<bool> isResolved)
     {
-        if (rolledStatAmount >= 2)
-            return;
-        int successCount = occultismSuccesses;
-        for (int i = 0; i < grimoire.occultism; i++)
+        for (float t = 0f; t < maxRollSeconds; t += Time.unscaledDeltaTime)
         {
-            int roll = RollDice(6); // Roll a 6-sided die
-            if (roll >= 5)
-            {
-                successCount++;
-            }
-            Debug.Log("Occultism Dice Roll: " + roll);
+            if (isResolved()) yield break;
+            yield return null;
         }
-        rolledStatAmount++;
-        occultismSuccesses = successCount;
+
+        Debug.LogWarning($"[Dice] {result.discipline} roll took longer than {maxRollSeconds}s; skipping the animation.");
+        if (visualizer != null) visualizer.SkipToResult();
+
+        yield return new WaitForSecondsRealtime(0.5f);
+        if (!isResolved())
+        {
+            Debug.LogWarning("[Dice] The dice never finished; applying the result without them.");
+            resolve(result);
+        }
     }
-    public void ResetDiceRolls() 
+
+
+    /// <summary>Skips the throw animation and lands the dice now.</summary>
+    public void SkipAnimation()
     {
-        rolledStatAmount = 0;
-        arcanaSuccesses = 0;
-        wardingSuccesses = 0;
-        loreSuccesses = 0;
-        occultismSuccesses = 0;
+        if (IsRolling) visualizer.SkipToResult();
     }
-    private int RollDice(int sides)
-    {
-        return Random.Range(1, sides + 1);
-    }
+
+    // Odds for the action preview, forwarded to DiceRules.
+    public float ChanceToReach(int pool, int target, int critBonus = 0) => DiceRules.ChanceToReach(pool, target, critBonus);
+    public float ChanceOfCrit(int pool) => DiceRules.ChanceOfCritical(pool);
+    public float ExpectedSuccesses(int pool) => DiceRules.ExpectedSuccesses(pool);
 }

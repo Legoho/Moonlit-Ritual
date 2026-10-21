@@ -1,0 +1,89 @@
+fileFormatVersion: 2
+guid: cabf73ecd80c4b26aead4b6070f04931
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_arcane_glow
+    second: {fileID: 2100000, guid: 98ea56fb04044fe98802304f80680293, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cable
+    second: {fileID: 2100000, guid: c86df0d7370442238e30e29403c86d1a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_chalk
+    second: {fileID: 2100000, guid: 1c459ba515bc406eb632c5aee40cd909, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_dirt
+    second: {fileID: 2100000, guid: 541c1f190b8442ec8ef15681a8220b8e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_flame
+    second: {fileID: 2100000, guid: 54560048f66741faa8dd44d56e76c15a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_grass
+    second: {fileID: 2100000, guid: fdb07f19b35f4491ba2a8ce4451dd897, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_moss
+    second: {fileID: 2100000, guid: 10aff8205ecd4cd280a464905cf44ede, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_mushroom
+    second: {fileID: 2100000, guid: 6f89104d873b4363a0631a5d68967ca7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_mushroom_cap
+    second: {fileID: 2100000, guid: 20e752bca70c4d0f9ca5fdd1d1858eda, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_stone
+    second: {fileID: 2100000, guid: 54b4d05874624f5ca7c2805141a2b544, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_stone_b
+    second: {fileID: 2100000, guid: 270aeb54be1b4cb1bae1576a53dffe0f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wax
+    second: {fileID: 2100000, guid: f46e7f9707084e949ccddf01e53589c7, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

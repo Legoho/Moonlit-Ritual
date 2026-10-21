@@ -15,10 +15,10 @@ MonoBehaviour:
   monsterName: Wailer
   monsterDescription: A banshee in his own right, this spirit is constantly wailing
     in an unearthly tone.
-  resistance: 3
+  resistance: 2
   solvedResistance: 1
   loreToSolve: 3
   stabilityDamage: 2
-  isSolved: 0
+  isSolved: 1
   monsterSprite: {fileID: 0}
   monsterHighlightSprite: {fileID: 0}

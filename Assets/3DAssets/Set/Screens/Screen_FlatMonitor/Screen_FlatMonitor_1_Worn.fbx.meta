@@ -1,0 +1,59 @@
+fileFormatVersion: 2
+guid: 408c5e34c7b2493b8c835b4f40753525
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cable
+    second: {fileID: 2100000, guid: 208c3557e87a42a69ef819a96bb5ea87, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_crack
+    second: {fileID: 2100000, guid: 90af2686a63e4c8fbf87c910b25b98ec, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_glass
+    second: {fileID: 2100000, guid: 47e4902807384ae4a5bba794f6b03af4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_paper
+    second: {fileID: 2100000, guid: d75d15d62eab4ad7a0d1f7a6b725c73c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_plastic_dark
+    second: {fileID: 2100000, guid: feac378ac834421c916958adc106728d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_steel
+    second: {fileID: 2100000, guid: 3a81211c28224ebf9c43d2c9a8fc6003, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

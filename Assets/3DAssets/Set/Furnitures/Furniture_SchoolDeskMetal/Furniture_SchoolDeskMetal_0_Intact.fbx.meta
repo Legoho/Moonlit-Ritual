@@ -1,0 +1,69 @@
+fileFormatVersion: 2
+guid: c5b0613b3d7142238266175240d0c8b9
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_book_green
+    second: {fileID: 2100000, guid: 22d9cd47de1b4b3eb1e55a4b51729c23, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_book_red
+    second: {fileID: 2100000, guid: fb86a06a87744323aacca5b410f8cd8c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_metal_green
+    second: {fileID: 2100000, guid: 7a499269cd4e4c3d8446db642db3f388, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_paper
+    second: {fileID: 2100000, guid: 3fc5214a41a34acab6f646c04df153e9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_rubber
+    second: {fileID: 2100000, guid: 0f368ec5fafc4db39270d6a7b7f0cd23, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_rust
+    second: {fileID: 2100000, guid: 584170c166fc47debb0f9590b54b4a6f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood
+    second: {fileID: 2100000, guid: 9ae31b2e9cf04514b23cebff83138e57, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_wood_light
+    second: {fileID: 2100000, guid: 4d492eec8ef243118bc383054cee15f3, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

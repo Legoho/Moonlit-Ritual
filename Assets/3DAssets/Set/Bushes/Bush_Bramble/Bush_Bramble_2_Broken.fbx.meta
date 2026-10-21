@@ -1,0 +1,59 @@
+fileFormatVersion: 2
+guid: 806bd9c96d384234bf2cb2a021465ad5
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_berry
+    second: {fileID: 2100000, guid: 1305903680e847198216af2929b4c04f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_berry_red
+    second: {fileID: 2100000, guid: 58a182431fe74d9ea2eab4ab02f611b6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_cane
+    second: {fileID: 2100000, guid: 0590aab23c194813867055421a3db62d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_dry
+    second: {fileID: 2100000, guid: ae1e9b084fd8416996d18a12b5143bc9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_oak
+    second: {fileID: 2100000, guid: 55f271782b91452b8397571d84f44fa6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_rose
+    second: {fileID: 2100000, guid: 72ac6184249242f89dbd7cf958658cb3, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

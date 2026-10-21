@@ -1,0 +1,59 @@
+fileFormatVersion: 2
+guid: 7407cd25efcd41608821c59fc11f30ba
+ModelImporter:
+  serializedVersion: 24300
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_bark_dark
+    second: {fileID: 2100000, guid: e7e8bf222ce94cab821b857e5f7b8465, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_fungus
+    second: {fileID: 2100000, guid: 57f7497080c4462d870ef287872d48db, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_hole
+    second: {fileID: 2100000, guid: 27d1628ea9b84a7eb375ea3a5b5b593b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_dry
+    second: {fileID: 2100000, guid: 789d19bd6822462d942d7e868848192d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_oak
+    second: {fileID: 2100000, guid: 771ac6d7d68349e8b3a65c1e5fe25fa5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DA_leaf_oak2
+    second: {fileID: 2100000, guid: 77f31657b98f4f49bdf9a8aac9f617e9, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    importAnimatedCustomProperties: 0
+  meshes:
+    globalScale: 1
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importCameras: 0
+    importLights: 0
+    useFileUnits: 1
+    bakeAxisConversion: 0
+    useFileScale: 1
+  tangentSpace:
+    normalImportMode: 0
+  importAnimation: 0
+  animationType: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
