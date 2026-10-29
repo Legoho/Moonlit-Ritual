@@ -76,7 +76,7 @@ public class PartySlotUI : MonoBehaviour
                 Heroine.IsDowned ? "Downed" :
                 isDone ? "Done" :
                 $"{Heroine.actionsRemaining} Action{(Heroine.actionsRemaining == 1 ? "" : "s")}" +
-                (Heroine.hasMoved ? "" : ", Move");
+                (Heroine.movementRemaining > 0 ? $", {Heroine.movementRemaining} Move" : "");
         }
     }
 

@@ -54,7 +54,11 @@ public class DiceRollResult
 public static class DiceRules
 {
     public const int Sides = 8;
-    public const int SuccessMin = 6;
+    public const int BaseSuccessMin = 6;
+    /// <summary>Added to the Success threshold, e.g. +1 from an Omen. Set by RitualManager each encounter.</summary>
+    public static int ThresholdModifier = 0;
+    /// <summary>Lowest face that counts as a Success (6 by default). Never below 2 or above 8 (GDD 6.2).</summary>
+    public static int SuccessMin => Mathf.Clamp(BaseSuccessMin + ThresholdModifier, 2, CriticalFace);
     public const int CriticalFace = 8;
     public const int CriticalValue = 2;
     public const int OverchargeCriticals = 2; // GDD 6.7 (PROVISIONAL)
@@ -74,9 +78,9 @@ public static class DiceRules
 
     // ---------- Odds (GDD 13.3) ----------
 
-    private const float PFail = (SuccessMin - 1f) / Sides;
-    private const float PCrit = (Sides - CriticalFace + 1f) / Sides;
-    private const float PHit = 1f - PFail - PCrit;
+    private static float PFail => (SuccessMin - 1f) / Sides;
+    private static float PCrit => (Sides - CriticalFace + 1f) / Sides;
+    private static float PHit => Mathf.Max(0f, 1f - PFail - PCrit);
 
     /// <summary>
     /// Chance that Successes (+ critBonus if at least one Critical is rolled) reach the target.

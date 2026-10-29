@@ -19,7 +19,6 @@ public class TurnManager : MonoBehaviour
     public int Round { get; private set; }
     public Heroine ActiveHeroine { get; private set; }
 
-    private readonly HashSet<Heroine> finished = new();
 
     public event Action<Heroine> ActiveHeroineChanged;
     /// <summary>Raised when the party list is replaced (e.g. RunManager spawned the chosen party).</summary>
@@ -45,14 +44,12 @@ public class TurnManager : MonoBehaviour
     {
         Round = 0;
         Phase = CombatPhase.Setup;
-        finished.Clear();
         SetActive(null);
     }
 
     public void StartPlayerPhase()
     {
         Phase = CombatPhase.PlayerPhase;
-        finished.Clear();
         foreach (var h in party)
         {
             if (h == null) continue;
@@ -76,8 +73,8 @@ public class TurnManager : MonoBehaviour
         SetActive(null);
     }
 
-    public bool HasStarted(Heroine h) => h.hasMoved || h.actionsRemaining < h.actionsPerTurn;
-    public bool IsDone(Heroine h) => h == null || h.IsDowned || finished.Contains(h);
+    /// <summary>Done for this round: Downed, or no Actions and no Move left.</summary>
+    public bool IsDone(Heroine h) => h == null || !h.HasAnythingLeft;
 
     public bool TrySelect(Heroine h, out string reason)
     {
@@ -85,13 +82,9 @@ public class TurnManager : MonoBehaviour
         if (Phase != CombatPhase.PlayerPhase) { reason = "It is not the player phase."; return false; }
         if (!party.Contains(h)) { reason = $"{h.DisplayName} is not deployed."; return false; }
         if (h.IsDowned) { reason = $"{h.DisplayName} is Downed."; return false; }
-        if (finished.Contains(h)) { reason = $"{h.DisplayName} has already finished this round."; return false; }
+        if (!h.HasAnythingLeft) { reason = $"{h.DisplayName} has no Actions or Move left this round."; return false; }
 
-        if (ActiveHeroine != null && ActiveHeroine != h && HasStarted(ActiveHeroine))
-        {
-            finished.Add(ActiveHeroine);
-            Debug.Log($"{ActiveHeroine.DisplayName}'s activation ends.");
-        }
+        // Switching is free: the previous heroine keeps whatever she has left and can be picked again later.
         SetActive(h);
         return true;
     }
@@ -100,7 +93,6 @@ public class TurnManager : MonoBehaviour
     public void FinishActivation()
     {
         if (ActiveHeroine == null) return;
-        finished.Add(ActiveHeroine);
         SetActive(null);
     }
 

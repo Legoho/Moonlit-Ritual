@@ -35,7 +35,8 @@ public class MonsterSpawner : MonoBehaviour
         var grid = GridManager.Instance;
         if (grid == null || round < firstSpawnRound || monsterPrefabs.Count == 0) return spawned;
 
-        for (int i = 0; i < monstersPerRound; i++)
+        int count = monstersPerRound + RunManager.Effects.extraSpawnsPerRound;
+        for (int i = 0; i < count; i++)
         {
             var prefab = PickPrefab();
             if (prefab == null) continue;

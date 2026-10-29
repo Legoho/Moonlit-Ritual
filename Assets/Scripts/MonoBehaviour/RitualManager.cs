@@ -46,10 +46,13 @@ public class RitualManager : MonoBehaviour
     private readonly HashSet<Vector2Int> reachableTiles = new();
     private bool busy;
     private bool rolling;
+    private Heroine lastSelectedHeroine;
     private int encounterId; // stale dice callbacks from a restarted encounter are ignored
 
     public RitualState Ritual => ritual;
     public bool IsBusy => busy || rolling;
+    /// <summary>Raised once when the encounter is won (true) or lost (false), with the reason.</summary>
+    public event Action<bool, string> EncounterEnded;
     public CombatPhase Phase => turnManager != null ? turnManager.Phase : CombatPhase.Setup;
 
     // =====================================================================
@@ -150,12 +153,15 @@ public class RitualManager : MonoBehaviour
 
     private void StartEncounter()
     {
-        ritual.Reset();
+        ritual.Reset(RunManager.Effects);
+        DiceRules.ThresholdModifier = RunManager.Effects.successThreshold;
         solvedTypes.Clear();
         insight.Clear();
         foreach (var s in spawners) if (s != null) s.ResetSpawner();
         turnManager.BeginEncounter();
         Log("Encounter begins.");
+        TutorialManager.Fire(TutorialTrigger.EncounterStart);
+        if (RunManager.Instance != null) RunManager.Instance.OnEncounterStart(this);
         BeginRound();
     }
 
@@ -194,7 +200,7 @@ public class RitualManager : MonoBehaviour
                 Log($"{m.DisplayName} appears at {m.GridPosition}.");
             }
         }
-
+        if (RunManager.Instance != null) RunManager.Instance.OnRoundStart(this, turnManager.Round);
         PlanIntents();
         turnManager.StartPlayerPhase();
         anchor.shields = 0;
@@ -228,8 +234,8 @@ public class RitualManager : MonoBehaviour
         // Passive ritual effects (GDD 5.3): Anchor gives Progress if a girl stands next to it.
         if (turnManager.InCombat.Any(h => anchor.IsAdjacent(h.GridPosition)))
         {
-            int gained = ritual.AddProgress(ritual.anchorPassiveProgress);
-            Log($"Anchor passive: +{gained} Progress{LostToStability(ritual.anchorPassiveProgress, gained)}.");
+            int gained = ritual.AddProgress(ritual.AnchorPassiveProgress);
+            Log($"Anchor passive: +{gained} Progress{LostToStability(ritual.AnchorPassiveProgress, gained)}.");
         }
         if (CheckEncounterEnd()) { busy = false; yield break; }
 
@@ -287,7 +293,10 @@ public class RitualManager : MonoBehaviour
     private void HitHeroine(MonsterHolder m, Heroine h)
     {
         if (h.TakeHit(m.HeroineDamage))
+        {
             Log($"{m.DisplayName} hits {h.DisplayName}: Resolve {h.resolve}/{h.maxResolve}{(h.IsDowned ? " - DOWNED" : "")}.");
+            if (h.IsDowned) TutorialManager.Fire(TutorialTrigger.HeroineDowned, h);
+        }
         else
             Log($"{m.DisplayName} hits {h.DisplayName}, but Shields block it.");
     }
@@ -308,7 +317,9 @@ public class RitualManager : MonoBehaviour
         turnManager.SetResult(won);
         foreach (var m in monsters) if (m != null) m.ShowIntent(null);
         Log(won ? $"VICTORY - {reason}" : $"DEFEAT - {reason}");
+        if (RunManager.Instance != null) RunManager.Instance.OnEncounterEnd(this, won);
         RefreshUI();
+        EncounterEnded?.Invoke(won, reason);
     }
 
     // =====================================================================
@@ -412,13 +423,17 @@ public class RitualManager : MonoBehaviour
             Log(reason);
             return;
         }
-        Log($"{h.DisplayName}: {h.actionsRemaining} Action(s){(h.hasMoved ? "" : ", Move available")}. " +
+        TutorialManager.Fire(TutorialTrigger.HeroineSelected, h);
+        if (lastSelectedHeroine != null && lastSelectedHeroine != h)
+            TutorialManager.Fire(TutorialTrigger.HeroineSwitched, h);
+        lastSelectedHeroine = h;
+        Log($"{h.DisplayName}: {h.actionsRemaining} Action(s), {h.movementRemaining} Move. " +
             $"Pools A{h.GetPool(Discipline.Arcana)} W{h.GetPool(Discipline.Warding)} " +
             $"L{h.GetPool(Discipline.Lore)} O{h.GetPool(Discipline.Occultism)}.");
         RefreshUI();
 
         // Show her move range straight away; clicking a blue tile moves her, an action button cancels it.
-        if (autoShowMoveOnSelect && !h.hasMoved) Move();
+        if (autoShowMoveOnSelect && h.HasMovementLeft) Move();
     }
 
     public void CancelAction()
@@ -525,8 +540,10 @@ public class RitualManager : MonoBehaviour
         if (CheckEncounterEnd()) return;
 
         var h = turnManager.ActiveHeroine;
-        if (h != null && h.actionsRemaining == 0 && h.hasMoved)
-            turnManager.FinishActivation();
+        if (h != null && !h.HasAnythingLeft)
+            turnManager.FinishActivation();                 // nothing left: deselect her
+        else if (h != null && autoShowMoveOnSelect && h.HasMovementLeft && mode == InputMode.Idle)
+            Move();
         RefreshUI();
     }
 
@@ -538,10 +555,10 @@ public class RitualManager : MonoBehaviour
     {
         var h = RequireActiveHeroine();
         if (h == null) return;
-        if (h.hasMoved) { Log($"{h.DisplayName} has already moved this turn."); return; }
+        if (!h.HasMovementLeft) { Log($"{h.DisplayName} has no Move left this round."); return; }
 
         ClearInputMode();
-        foreach (var t in grid.Flood(h.GridPosition, h.moveRange, grid.IsFree).Keys)
+        foreach (var t in grid.Flood(h.GridPosition, h.movementRemaining, grid.IsFree).Keys)
             if (t != h.GridPosition) reachableTiles.Add(t);
 
         if (reachableTiles.Count == 0) { Log($"{h.DisplayName} has nowhere to move."); return; }
@@ -555,16 +572,15 @@ public class RitualManager : MonoBehaviour
         var h = turnManager.ActiveHeroine;
         if (h == null || !reachableTiles.Contains(tile))
         {
-            Log($"Tile {tile} is out of reach (she is on {h?.GridPosition}, move {h?.moveRange}).");
+            Log($"Tile {tile} is out of reach (she is on {h?.GridPosition}, {h?.movementRemaining} Move left).");
             return;
         }
 
         var cameFrom = new Dictionary<Vector2Int, Vector2Int>();
-        grid.Flood(h.GridPosition, h.moveRange, grid.IsFree, cameFrom);
+        grid.Flood(h.GridPosition, h.movementRemaining, grid.IsFree, cameFrom);
         var path = GridManager.BuildPath(cameFrom, h.GridPosition, tile);
 
-        h.hasMoved = true;
-        ClearInputMode();
+        h.movementRemaining -= path.Count; // shortest path, so cost = number of tiles walked        ClearInputMode();
         StartCoroutine(MoveHeroine(h, path));
     }
 
@@ -776,13 +792,19 @@ public class RitualManager : MonoBehaviour
     {
         var h = RequireActiveHeroine();
         if (h == null || !CanUseDiscipline(h, Discipline.Occultism)) return;
-        if (!anchor.IsAdjacent(h.GridPosition)) { Log($"{h.DisplayName} must stand next to the Anchor to Channel."); return; }
-
+        if (!anchor.IsAdjacent(h.GridPosition))
+        {
+            Log($"{h.DisplayName} must stand next to the Anchor to Channel.");
+            TutorialManager.Fire(TutorialTrigger.ChannelNotAdjacent, h);
+            return;
+        }
         ClearInputMode();
         RollThen(h, Discipline.Occultism, anchor, roll =>
         {
-            int amount = roll.Successes + (roll.HasCritical ? ritual.channelCritBonus : 0);
+            int amount = roll.Successes + (roll.HasCritical ? ritual.ChannelCritBonus : 0);
             int gained = ritual.AddProgress(amount);
+            if (gained < amount && ritual.stability < ritual.MaxStability)
+                TutorialManager.Fire(TutorialTrigger.ChannelLimitedByStability, h);
             Log($"{h.DisplayName} Channels: +{gained} Progress{LostToStability(amount, gained)} ({ritual.progress}/{ritual.progressTarget}).");
             if (roll.IsOvercharged) Log("Overcharge: no Sigils on this map yet, so nothing extra happens.");
         });
@@ -876,7 +898,7 @@ public class RitualManager : MonoBehaviour
         {
             sliderManager.UpdateTurnSlider(turnManager.Round, ritual.turnCapacity);
             sliderManager.UpdateRitualProgressSlider(ritual.progress, ritual.progressTarget);
-            sliderManager.UpdateStabilitySlider(ritual.stability, ritual.maxStability);
+            sliderManager.UpdateStabilitySlider(ritual.stability, ritual.MaxStability);
         }
         if (ui != null)
         {

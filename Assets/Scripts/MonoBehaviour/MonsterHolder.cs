@@ -26,7 +26,7 @@ public class MonsterHolder : GridUnit
 
     public bool IsSolved => ritualManager != null && ritualManager.IsSolved(monsterData);
     public int CurrentResolve => IsSolved ? monsterData.solvedResistance : monsterData.resistance;
-    public int Movement => monsterData.movement;
+    public int Movement => Mathf.Max(0, monsterData.movement + RunManager.Effects.enemyMovement);
     public int AttackRange => monsterData.attackRange;
     public int StabilityDamage => monsterData.stabilityDamage;
     public int HeroineDamage => monsterData.heroineDamage;

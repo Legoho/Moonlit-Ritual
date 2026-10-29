@@ -88,7 +88,7 @@ public class ButtonTextManager : MonoBehaviour
         SetText(HeroineText,
             $"{h.heroineName}\n" +
             $"Resolve {h.resolve}/{h.maxResolve}  Shields {h.shields}\n" +
-            $"Move {(h.hasMoved ? "used" : $"{h.moveRange} tiles")}\n" +
+            $"Move {h.movementRemaining}/{h.moveRange} tiles\n" +
             $"Used: {used}");
         UpdateActionsRemaining(h.actionsRemaining, h.actionsPerTurn);
     }

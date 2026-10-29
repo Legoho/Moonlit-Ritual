@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b82f831fbeddf8946be79f16ad4177ce, type: 3}
+  m_Name: Holo
+  m_EditorClassIdentifier: Assembly-CSharp::HeroineDefinition
+  displayName: Holo
+  title: 
+  prefab: {fileID: -209000719828571331, guid: 362474c48a2aea549a57c0db335fbdc8, type: 3}
+  grimoire: {fileID: 11400000, guid: a3d35da488dd8494fa334934cd289829, type: 2}
+  portrait: {fileID: 2800000, guid: f6e56f7acbf92d148886dccdbf8de2f5, type: 3}

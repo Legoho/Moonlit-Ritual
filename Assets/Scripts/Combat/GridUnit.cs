@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering.VirtualTexturing;
 
 /// <summary>
 /// Anything that occupies one tile: heroines, monsters and the Ritual Anchor.

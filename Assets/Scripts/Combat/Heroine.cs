@@ -55,13 +55,17 @@ public class Heroine : GridUnit
     public int resolve;
     public int shields;
     public int actionsRemaining;
-    public bool hasMoved;
+    [Tooltip("Tiles of Move left this round. Can be spent over several moves.")]
+    public int movementRemaining;
     public bool hasBeenRevived;
 
     private readonly HashSet<Discipline> usedDisciplines = new();
 
     public bool IsDowned => resolve <= 0;
     public bool CanAct => !IsDowned && actionsRemaining > 0;
+    public bool HasMovementLeft => !IsDowned && movementRemaining > 0;
+    /// <summary>True while she can still do anything this round (an Action or at least 1 tile of Move).</summary>
+    public bool HasAnythingLeft => CanAct || HasMovementLeft;
     public IReadOnlyCollection<Discipline> UsedDisciplines => usedDisciplines;
 
     protected override string GetDisplayName() => heroineName;
@@ -118,7 +122,7 @@ public class Heroine : GridUnit
     public void BeginTurn()
     {
         actionsRemaining = IsDowned ? 0 : actionsPerTurn;
-        hasMoved = IsDowned;
+        movementRemaining = IsDowned ? 0 : moveRange;
         usedDisciplines.Clear();
     }
 
@@ -137,6 +141,7 @@ public class Heroine : GridUnit
         if (IsDowned)
         {
             actionsRemaining = 0;
+            movementRemaining = 0;
             SetFainted(true);
             Debug.Log($"{heroineName} is Downed!");
         }

@@ -29,6 +29,13 @@ public class DiceRollManager : MonoBehaviour
         DiceRollResult result = DiceRules.RollPool(discipline, pool);
         Debug.Log("Rolled: " + result);
 
+        // Relic: reroll a roll with no Successes (limited uses per encounter).
+        if (result.Successes == 0 && pool > 0 && RunManager.Instance != null && RunManager.Instance.TryUseEmptyRollReroll())
+        {
+            result = DiceRules.RollPool(discipline, pool);
+            Debug.Log("Empty roll rerolled: " + result);
+        }
+
         bool resolved = false;
         void Resolve(DiceRollResult r)
         {

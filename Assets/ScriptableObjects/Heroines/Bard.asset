@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b82f831fbeddf8946be79f16ad4177ce, type: 3}
+  m_Name: Bard
+  m_EditorClassIdentifier: Assembly-CSharp::HeroineDefinition
+  displayName: Bard
+  title: 
+  prefab: {fileID: -3855920649281122725, guid: 4d58e6d3cbcadca40aadc151536d6fa4, type: 3}
+  grimoire: {fileID: 11400000, guid: a3d35da488dd8494fa334934cd289829, type: 2}
+  portrait: {fileID: 2800000, guid: 2fb47f08befbeed4e9635ae596a80341, type: 3}
