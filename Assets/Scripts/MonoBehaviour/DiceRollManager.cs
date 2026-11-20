@@ -13,6 +13,10 @@ public class DiceRollManager : MonoBehaviour
     [SerializeField] private float maxRollSeconds = 5f;
 
     public bool IsRolling => visualizer != null && visualizer.IsRolling;
+    /// <summary>A roll has been decided and is about to be shown (discipline, number of dice).</summary>
+    public event Action<Discipline, int> RollStarted;
+    /// <summary>The roll has landed and its effect has been applied.</summary>
+    public event Action<DiceRollResult> RollFinished;
 
     private void Awake()
     {
@@ -24,15 +28,15 @@ public class DiceRollManager : MonoBehaviour
     /// Rolls a pool and returns the result straight away (it is decided before the throw).
     /// onResolved is called once the result has been shown.
     /// </summary>
-    public DiceRollResult Roll(Discipline discipline, int pool, Action<DiceRollResult> onResolved)
+    public DiceRollResult Roll(Discipline discipline, int pool, Action<DiceRollResult> onResolved, int thresholdOffset = 0)
     {
-        DiceRollResult result = DiceRules.RollPool(discipline, pool);
+        DiceRollResult result = DiceRules.RollPool(discipline, pool, thresholdOffset);
         Debug.Log("Rolled: " + result);
 
         // Relic: reroll a roll with no Successes (limited uses per encounter).
         if (result.Successes == 0 && pool > 0 && RunManager.Instance != null && RunManager.Instance.TryUseEmptyRollReroll())
         {
-            result = DiceRules.RollPool(discipline, pool);
+            result = DiceRules.RollPool(discipline, pool, thresholdOffset);
             Debug.Log("Empty roll rerolled: " + result);
         }
 
@@ -43,7 +47,10 @@ public class DiceRollManager : MonoBehaviour
             resolved = true;
             if (buttonTextManager != null) buttonTextManager.ShowRoll(r);
             onResolved?.Invoke(r);
+            RollFinished?.Invoke(r);
         }
+
+        RollStarted?.Invoke(discipline, pool); 
 
         if (showDiceAnimation && visualizer != null && visualizer.isActiveAndEnabled && pool > 0)
         {
@@ -99,7 +106,8 @@ public class DiceRollManager : MonoBehaviour
     }
 
     // Odds for the action preview, forwarded to DiceRules.
-    public float ChanceToReach(int pool, int target, int critBonus = 0) => DiceRules.ChanceToReach(pool, target, critBonus);
+    public float ChanceToReach(int pool, int target, int critBonus = 0, int thresholdOffset = 0) =>
+       DiceRules.ChanceToReach(pool, target, critBonus, thresholdOffset);
     public float ChanceOfCrit(int pool) => DiceRules.ChanceOfCritical(pool);
     public float ExpectedSuccesses(int pool) => DiceRules.ExpectedSuccesses(pool);
 }

@@ -18,22 +18,33 @@ public class MonsterHolder : GridUnit
     [Header("Runtime")]
     [Tooltip("Set by a Study Critical: the next damage against it gains +1.")]
     public bool isMarked;
-
+    [Tooltip("Elite (e.g. an Elite Guardian objective): extra Resolve, unsolved and Solved.")]
+    public int resolveBonus;
+    [Tooltip("Never moves on its own (guards its spot), but still attacks what is in range.")]
+    public bool stationary;
+    public bool isElite;
     public EnemyIntent Intent { get; private set; }
 
     public Monster Data => monsterData;
     public Monster GetMonsterData() => monsterData;
 
     public bool IsSolved => ritualManager != null && ritualManager.IsSolved(monsterData);
-    public int CurrentResolve => IsSolved ? monsterData.solvedResistance : monsterData.resistance;
-    public int Movement => Mathf.Max(0, monsterData.movement + RunManager.Effects.enemyMovement);
+    public int CurrentResolve => (IsSolved ? monsterData.solvedResistance : monsterData.resistance) + resolveBonus;
+    public int Movement => stationary ? 0 : Mathf.Max(0, monsterData.movement + RunManager.Effects.enemyMovement);
     public int AttackRange => monsterData.attackRange;
     public int StabilityDamage => monsterData.stabilityDamage;
     public int HeroineDamage => monsterData.heroineDamage;
     public TargetPreference Preference => monsterData.targetPreference;
+    /// <summary>Turns it into an Elite Guardian: more Resolve, and it holds its position.</summary>
+    public void MakeElite(int extraResolve, bool holdPosition = true)
+    {
+        isElite = true;
+        resolveBonus = extraResolve;
+        stationary = holdPosition;
+    }
 
     protected override string GetDisplayName() =>
-        monsterData != null && !string.IsNullOrEmpty(monsterData.monsterName) ? monsterData.monsterName : name;
+        (isElite ? "Elite " : "") + (monsterData != null && !string.IsNullOrEmpty(monsterData.monsterName) ? monsterData.monsterName : name);
 
     protected override void Awake()
     {

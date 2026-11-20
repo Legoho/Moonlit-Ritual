@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 458cadf1a3450844fa59699eee935407, type: 3}
+  m_Name: Control_TremblingHand
+  m_EditorClassIdentifier: Assembly-CSharp::Omen
+  displayName: Trembling Hand
+  icon: {fileID: 0}
+  description: In one discipline (chosen when she receives it), her Successes need
+    7+ instead of 6+. Shown in every roll.
+  flavour: Her hand shakes when she reaches for that magic.
+  family: 2
+  scope: 0
+  inDrawPool: 1
+  rules:
+    maxResolve: 0
+    moveRange: 0
+    arcanaRange: 0
+    wardingRange: 0
+    loreRange: 0
+    successThreshold: 1
+    thresholdDiscipline: 0
+    randomThresholdDiscipline: 1
+    channelCritBonus: 0
+    cannotStabilize: 0
+    progressLostWhenDowned: 0
+  teamEffects:
+    turnCapacity: 0
+    startingStability: 0
+    maxStability: 0
+    anchorPassiveProgress: 0
+    channelCritBonus: 0
+    capacityRestoresPerRound: 0
+    maxResolve: 0
+    moveRange: 0
+    abilityRange: 0
+    successThreshold: 0
+    emptyRollRerolls: 0
+    enemyMovement: 0
+    extraSpawnsPerRound: 0
+    reinforcementsEarlier: 0

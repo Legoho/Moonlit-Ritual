@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3a27ab117ad833489ebd4fd755036cb, type: 3}
+  m_Name: Rosalia_RefrainOfBinding
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityDefinition
+  displayName: Refrain of Binding
+  icon: {fileID: 8427409606232560489, guid: 259b97f3796dd034bbb828dcc0811cbe, type: 3}
+  description: 'Next to the Anchor: +1 Progress per Success, +1 more (limited by
+    Stability).
+
+    Critical: the song steadies the circle first: +1 Stability before
+    the Progress is added.
+
+    Overcharge: +2 more Progress.'
+  flavour: Sing it again, and the circle remembers.
+  discipline: 3
+  target: 0
+  includeSelf: 1
+  range: -1
+  straightLineOnly: 0
+  requirement: 1
+  effects:
+  - type: 5
+    trigger: 1
+    scope: 0
+    flat: 1
+    perSuccess: 0
+    maxAmount: 0
+    minSuccesses: 1
+  - type: 6
+    trigger: 0
+    scope: 0
+    flat: 1
+    perSuccess: 1
+    maxAmount: 0
+    minSuccesses: 1
+  - type: 6
+    trigger: 2
+    scope: 0
+    flat: 2
+    perSuccess: 0
+    maxAmount: 0
+    minSuccesses: 1
+  source: 0
+  learnableBy:
+  - {fileID: 11400000, guid: db210dd2eebdbe74eacd804e210d38b5, type: 2}
+  moonlightCost: 3
+  researchNights: 2

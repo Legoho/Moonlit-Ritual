@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b9b29389eb01cb46a7c56ff75d40627, type: 3}
+  m_Name: Relic_SilverHourglass
+  m_EditorClassIdentifier: Assembly-CSharp::Relic
+  displayName: Silver Hourglass
+  icon: {fileID: 0}
+  description: +1 starting Turn Capacity.
+  flavour: Its sand falls a little slower at night.
+  rarity: 0
+  inRewardPool: 1
+  effects:
+    turnCapacity: 1
+    startingStability: 0
+    maxStability: 0
+    anchorPassiveProgress: 0
+    channelCritBonus: 0
+    capacityRestoresPerRound: 0
+    maxResolve: 0
+    moveRange: 0
+    abilityRange: 0
+    successThreshold: 0
+    emptyRollRerolls: 0
+    enemyMovement: 0
+    extraSpawnsPerRound: 0
+    reinforcementsEarlier: 0

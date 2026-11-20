@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3a27ab117ad833489ebd4fd755036cb, type: 3}
+  m_Name: Iona_ArchiveMark
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityDefinition
+  displayName: Archive Mark
+  icon: {fileID: -5160306522176302180, guid: 66e1247a09e175c46b8e5c4aada460ad, type: 3}
+  description: 'Reveals an enemy''s full intent within 4 tiles, then (with at least
+    1 Success) Marks it and adds 1 Insight.
+
+    Critical: also Marks every enemy
+    next to it.
+
+    Overcharge: it acts last this enemy phase.'
+  flavour: Catalogued. Cross-referenced. Doomed.
+  discipline: 2
+  target: 1
+  includeSelf: 1
+  range: 4
+  straightLineOnly: 0
+  requirement: 0
+  effects:
+  - type: 12
+    trigger: 0
+    scope: 0
+    flat: 0
+    perSuccess: 0
+    maxAmount: 0
+    minSuccesses: 1
+  - type: 8
+    trigger: 0
+    scope: 0
+    flat: 0
+    perSuccess: 0
+    maxAmount: 0
+    minSuccesses: 1
+  - type: 7
+    trigger: 0
+    scope: 0
+    flat: 1
+    perSuccess: 0
+    maxAmount: 0
+    minSuccesses: 1
+  - type: 8
+    trigger: 1
+    scope: 3
+    flat: 0
+    perSuccess: 0
+    maxAmount: 0
+    minSuccesses: 1
+  - type: 9
+    trigger: 2
+    scope: 0
+    flat: 0
+    perSuccess: 0
+    maxAmount: 0
+    minSuccesses: 1
+  source: 0
+  learnableBy:
+  - {fileID: 11400000, guid: 022cbd7106cfd324f89b3182afa3e2a8, type: 2}
+  moonlightCost: 3
+  researchNights: 2

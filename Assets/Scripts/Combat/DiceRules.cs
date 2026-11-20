@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 /// <summary>
 /// One rolled pool. The numbers are decided before the 3D dice are thrown,
@@ -10,6 +11,8 @@ public class DiceRollResult
 {
     public Discipline discipline;
     public int[] values;
+    [Tooltip("This roll's personal threshold change (e.g. the Omen Trembling Hand: +1).")]
+    public int thresholdOffset;
 
     public DiceRollResult(Discipline discipline, int[] values)
     {
@@ -19,12 +22,14 @@ public class DiceRollResult
 
     public int DiceCount => values.Length;
 
+    public int SuccessesOf(int face) => DiceRules.SuccessesFor(face, thresholdOffset);
+
     public int Successes
     {
         get
         {
             int total = 0;
-            foreach (int v in values) total += DiceRules.SuccessesFor(v);
+            foreach (int v in values) total += DiceRules.SuccessesFor(v, thresholdOffset);
             return total;
         }
     }
@@ -63,31 +68,36 @@ public static class DiceRules
     public const int CriticalValue = 2;
     public const int OverchargeCriticals = 2; // GDD 6.7 (PROVISIONAL)
 
-    public static DiceRollResult RollPool(Discipline discipline, int diceCount)
+    public static DiceRollResult RollPool(Discipline discipline, int diceCount, int thresholdOffset = 0)
     {
         var values = new int[Mathf.Max(0, diceCount)];
         for (int i = 0; i < values.Length; i++)
             values[i] = UnityEngine.Random.Range(1, Sides + 1);
-        return new DiceRollResult(discipline, values);
+        return new DiceRollResult(discipline, values) { thresholdOffset = thresholdOffset };
     }
 
     public static bool IsCritical(int value) => value >= CriticalFace;
 
-    public static int SuccessesFor(int value) =>
-        value >= CriticalFace ? CriticalValue : value >= SuccessMin ? 1 : 0;
+    public static int SuccessesFor(int value,int extraThreshold = 0) =>
+        value >= CriticalFace ? CriticalValue
+        : value >= Mathf.Clamp(SuccessMin + extraThreshold, 2, CriticalFace) ? 1 : 0;
 
     // ---------- Odds (GDD 13.3) ----------
 
-    private static float PFail => (SuccessMin - 1f) / Sides;
+    private static float PFail => PFailFor(0);
     private static float PCrit => (Sides - CriticalFace + 1f) / Sides;
-    private static float PHit => Mathf.Max(0f, 1f - PFail - PCrit);
+    private static float PHit => PHitFor(0);
+    private static float PFailFor(int extra) => (Mathf.Clamp(SuccessMin + extra, 2, CriticalFace) - 1f) / Sides;
+    private static float PHitFor(int extra) => Mathf.Max(0f, 1f - PFailFor(extra) - PCrit);
 
     /// <summary>
     /// Chance that Successes (+ critBonus if at least one Critical is rolled) reach the target.
     /// Example: Arcane Strike kill chance = ChanceToReach(pool, enemyResolve, 1).
     /// </summary>
-    public static float ChanceToReach(int pool, int target, int critBonus = 0)
+    public static float ChanceToReach(int pool, int target, int critBonus = 0, int thresholdOffset = 0)
     {
+        float pFail = PFailFor(thresholdOffset);
+        float pHit = PHitFor(thresholdOffset);
         if (target <= 0) return 1f;
         int max = pool * CriticalValue + 1;
         var noCrit = new float[max];   // probability of s successes, no Critical so far
@@ -102,8 +112,8 @@ public static class DiceRules
             {
                 if (noCrit[s] > 0f)
                 {
-                    nNo[s] += noCrit[s] * PFail;
-                    if (s + 1 < max) nNo[s + 1] += noCrit[s] * PHit;
+                    nNo[s] += noCrit[s] * pFail;
+                    if (s + 1 < max) nNo[s + 1] += noCrit[s] * pHit;
                     if (s + CriticalValue < max) nWith[s + CriticalValue] += noCrit[s] * PCrit;
                 }
                 if (withCrit[s] > 0f)

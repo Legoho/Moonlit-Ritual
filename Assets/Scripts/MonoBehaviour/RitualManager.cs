@@ -4,9 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
-[RequireComponent(typeof(DiceRollManager))]
 
-public class RitualManager : MonoBehaviour
+/// <summary>
+/// Runs the combat phase (GDD 4, 5, 6): rounds, player input, the four standard discipline
+/// actions, the enemy phase and win/loss. Button entry points: Move, Arcana, Warding, Stabilize,
+/// Lore, Occultism, Assist, FinishHeroine, CancelAction, EndTurn, RestartEncounter.
+///
+/// Round order:
+///   1. Spawners add monsters, every monster plans and telegraphs its intent.
+///   2. Player phase: each heroine gets one free Move and two Actions (each discipline once).
+///   3. Enemy phase: intents resolve in order.
+///   4. Anchor passive Progress, Stability Strain, round + 1, loss check.
+/// </summary>
+[RequireComponent(typeof(DiceRollManager))]
+public partial class RitualManager : MonoBehaviour
 {
     [SerializeField] private RitualState ritual = new();
 
@@ -15,6 +26,8 @@ public class RitualManager : MonoBehaviour
     [SerializeField] private GridManager grid;
     [SerializeField] private RitualAnchor anchor;
     [SerializeField] private DiceRollManager dice;
+    /// <summary>The DiceRollManager this ritual actually rolls with.</summary>         
+    public DiceRollManager Dice => dice != null ? dice : (dice = GetComponent<DiceRollManager>());   
     [SerializeField] private SliderManager sliderManager;
     [SerializeField] private ButtonTextManager ui;
     [SerializeField] private List<MonsterSpawner> spawners = new();
@@ -46,11 +59,12 @@ public class RitualManager : MonoBehaviour
     private readonly HashSet<Vector2Int> reachableTiles = new();
     private bool busy;
     private bool rolling;
-    private Heroine lastSelectedHeroine;
+    private Heroine lastSelectedHeroine; // for the "switched heroine" tutorial
     private int encounterId; // stale dice callbacks from a restarted encounter are ignored
 
     public RitualState Ritual => ritual;
     public bool IsBusy => busy || rolling;
+
     /// <summary>Raised once when the encounter is won (true) or lost (false), with the reason.</summary>
     public event Action<bool, string> EncounterEnded;
     public CombatPhase Phase => turnManager != null ? turnManager.Phase : CombatPhase.Setup;
@@ -162,6 +176,7 @@ public class RitualManager : MonoBehaviour
         Log("Encounter begins.");
         TutorialManager.Fire(TutorialTrigger.EncounterStart);
         if (RunManager.Instance != null) RunManager.Instance.OnEncounterStart(this);
+        if (ObjectiveManager.Instance != null) ObjectiveManager.Instance.BeginEncounter(this);
         BeginRound();
     }
 
@@ -200,10 +215,13 @@ public class RitualManager : MonoBehaviour
                 Log($"{m.DisplayName} appears at {m.GridPosition}.");
             }
         }
+        anchor.shields = 0;
+
         if (RunManager.Instance != null) RunManager.Instance.OnRoundStart(this, turnManager.Round);
+        if (ObjectiveManager.Instance != null) ObjectiveManager.Instance.RoundStart(turnManager.Round);
         PlanIntents();
         turnManager.StartPlayerPhase();
-        anchor.shields = 0;
+
         Log($"--- Round {turnManager.Round} / {ritual.turnCapacity}: player phase ---");
         RefreshAll();
     }
@@ -230,6 +248,8 @@ public class RitualManager : MonoBehaviour
             if (CheckEncounterEnd()) { busy = false; yield break; }
             yield return new WaitForSeconds(enemyActionDelay);
         }
+
+        if (ObjectiveManager.Instance != null) ObjectiveManager.Instance.EnemyPhaseEnd();
 
         // Passive ritual effects (GDD 5.3): Anchor gives Progress if a girl stands next to it.
         if (turnManager.InCombat.Any(h => anchor.IsAdjacent(h.GridPosition)))
@@ -270,6 +290,7 @@ public class RitualManager : MonoBehaviour
         }
 
         if (intent.targetType == IntentTargetType.Anchor) HitAnchor(m);
+        else if (intent.target is Civilian civilian) HitCivilian(m, civilian);
         else HitHeroine(m, intent.TargetHeroine);
     }
 
@@ -290,12 +311,32 @@ public class RitualManager : MonoBehaviour
         Log($"{m.DisplayName} hits the Anchor: -{damage} Turn Capacity ({ritual.turnCapacity} left), Stability {ritual.stability}.");
     }
 
+    private void HitCivilian(MonsterHolder m, Civilian c)
+    {
+        if (c.TakeHit(m.HeroineDamage))
+            Log($"{m.DisplayName} attacks {c.DisplayName}{(c.IsLost ? " - they are lost!" : $": Resolve {c.resolve}/{c.maxResolve}.")}");
+        else
+            Log($"{m.DisplayName} attacks {c.DisplayName}, but Shields block it.");
+    }
+
     private void HitHeroine(MonsterHolder m, Heroine h)
     {
         if (h.TakeHit(m.HeroineDamage))
         {
             Log($"{m.DisplayName} hits {h.DisplayName}: Resolve {h.resolve}/{h.maxResolve}{(h.IsDowned ? " - DOWNED" : "")}.");
-            if (h.IsDowned) TutorialManager.Fire(TutorialTrigger.HeroineDowned, h);
+            if (h.IsDowned)
+            {
+                if (m.Data != null) h.downedBy = m.Data.category;
+                if (h.downedBy.HasValue)
+                    Log($"If the mission ends with {h.DisplayName} Downed, she receives a{(h.downedBy == EnemyCategory.Assault ? "n" : "")} {h.downedBy} Omen.");
+                if (h.progressLostWhenDowned > 0)
+                {
+                    int lost = Mathf.Min(ritual.progress, h.progressLostWhenDowned);
+                    ritual.progress -= lost;
+                    Log($"Omen: the ritual loses {lost} Progress as {h.DisplayName} falls ({ritual.progress}/{ritual.progressTarget}).");
+                }
+                TutorialManager.Fire(TutorialTrigger.HeroineDowned, h);
+            }
         }
         else
             Log($"{m.DisplayName} hits {h.DisplayName}, but Shields block it.");
@@ -317,6 +358,7 @@ public class RitualManager : MonoBehaviour
         turnManager.SetResult(won);
         foreach (var m in monsters) if (m != null) m.ShowIntent(null);
         Log(won ? $"VICTORY - {reason}" : $"DEFEAT - {reason}");
+        if (ObjectiveManager.Instance != null) ObjectiveManager.Instance.EncounterEnd(won);
         if (RunManager.Instance != null) RunManager.Instance.OnEncounterEnd(this, won);
         RefreshUI();
         EncounterEnded?.Invoke(won, reason);
@@ -332,7 +374,7 @@ public class RitualManager : MonoBehaviour
         var reserved = new HashSet<Vector2Int>();
         foreach (var m in monsters)
         {
-            var intent = EnemyPlanner.Plan(m, grid, anchor, turnManager.party, reserved);
+            var intent = EnemyPlanner.Plan(m, grid, anchor, turnManager.party, reserved, ObjectiveManager.EnemyTargets);
             intents.Add(intent);
             if (intent.path.Count > 0) reserved.Add(intent.path[intent.path.Count - 1]);
         }
@@ -349,7 +391,7 @@ public class RitualManager : MonoBehaviour
         var reserved = new HashSet<Vector2Int>(intents
             .Where(i => i.monster != m && i.path.Count > 0)
             .Select(i => i.path[i.path.Count - 1]));
-        var fresh = EnemyPlanner.Plan(m, grid, anchor, turnManager.party, reserved);
+        var fresh = EnemyPlanner.Plan(m, grid, anchor, turnManager.party, reserved, ObjectiveManager.EnemyTargets);
         fresh.delayed = delayed;
         intents[index] = fresh;
     }
@@ -406,6 +448,7 @@ public class RitualManager : MonoBehaviour
         if (unit is Heroine h) SelectHeroine(h);
         else if (unit is MonsterHolder m) Log(DescribeMonster(m));
         else if (unit is RitualAnchor) Log($"Ritual Anchor: Shields {anchor.shields}, Stability {ritual.stability} ({ritual.StabilityState}).");
+        else if (unit is ObjectiveUnit ou) Log(ou.Describe());
     }
 
     public void OnTileClicked(Vector2Int tile)
@@ -470,10 +513,6 @@ public class RitualManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Spends the Action, throws the heroine's pool and applies the effect once the dice land.
-    /// Input is locked while the dice roll; a click skips the animation.
-    /// </summary>
-    /// <summary>
     /// Spends the Action, turns the heroine toward faceTarget, plays the cast, throws her pool
     /// and applies the effect once the dice land. Input is locked throughout; a click skips the dice.
     /// </summary>
@@ -490,6 +529,8 @@ public class RitualManager : MonoBehaviour
         int id = encounterId;
         yield return h.TurnToFace(faceTarget);
         h.PlayCast(discipline, faceTarget);
+        int threshold = h.ThresholdOffset(discipline);
+        if (threshold != 0) Log($"Omen: {h.DisplayName}'s {discipline} Successes need {DiceRules.SuccessMin + threshold}+ this roll.");
 
         dice.Roll(discipline, h.GetPool(discipline), result =>
         {
@@ -497,7 +538,7 @@ public class RitualManager : MonoBehaviour
             rolling = false;
             apply(result);
             AfterPlayerAction();
-        });
+        }, threshold);
     }
 
     private bool CanUseDiscipline(Heroine h, Discipline d)
@@ -512,6 +553,7 @@ public class RitualManager : MonoBehaviour
         foreach (var m in monsters) if (m != null) yield return m;
         foreach (var h in turnManager.party) if (h != null) yield return h;
         yield return anchor;
+        foreach (var u in ObjectiveManager.Units) yield return u;
     }
 
     private bool BeginTargeting(string label, Predicate<GridUnit> isValid, Action<GridUnit> onChosen, Color color)
@@ -543,12 +585,12 @@ public class RitualManager : MonoBehaviour
         if (h != null && !h.HasAnythingLeft)
             turnManager.FinishActivation();                 // nothing left: deselect her
         else if (h != null && autoShowMoveOnSelect && h.HasMovementLeft && mode == InputMode.Idle)
-            Move();
+            Move();                                         // show the Move she still has
         RefreshUI();
     }
 
     // =====================================================================
-    // Move (free, up to moveRange, once per turn, cannot be split)
+    // Move (free; up to moveRange tiles per round, split over as many moves as the player likes)
     // =====================================================================
 
     public void Move()
@@ -580,7 +622,8 @@ public class RitualManager : MonoBehaviour
         grid.Flood(h.GridPosition, h.movementRemaining, grid.IsFree, cameFrom);
         var path = GridManager.BuildPath(cameFrom, h.GridPosition, tile);
 
-        h.movementRemaining -= path.Count; // shortest path, so cost = number of tiles walked        ClearInputMode();
+        h.movementRemaining -= path.Count; // shortest path, so cost = number of tiles walked
+        ClearInputMode();
         StartCoroutine(MoveHeroine(h, path));
     }
 
@@ -588,6 +631,7 @@ public class RitualManager : MonoBehaviour
     {
         busy = true;
         yield return h.WalkPath(path);
+        if (ObjectiveManager.Instance != null) ObjectiveManager.Instance.HeroineMoved(h, path);
         busy = false;
         AfterPlayerAction();
     }
@@ -602,7 +646,7 @@ public class RitualManager : MonoBehaviour
         if (h == null || !CanUseDiscipline(h, Discipline.Arcana)) return;
 
         bool started = BeginTargeting("Arcane Strike",
-           u => u is MonsterHolder m && h.InRange(Discipline.Arcana, m.GridPosition),
+            u => u is MonsterHolder m && h.InRange(Discipline.Arcana, m.GridPosition),
             u => ArcaneStrike(h, (MonsterHolder)u),
             damageColor);
         if (!started) return;
@@ -612,7 +656,7 @@ public class RitualManager : MonoBehaviour
         {
             int need = Mathf.Max(1, m.CurrentResolve - (m.isMarked ? 1 : 0));
             Log($"  {m.DisplayName}: Resolve {m.CurrentResolve}{(m.isMarked ? " (marked)" : "")}, " +
-                $"kill chance {dice.ChanceToReach(pool, need, 1):P0} with {pool}d8.");
+                $"kill chance {dice.ChanceToReach(pool, need, 1, h.ThresholdOffset(Discipline.Arcana)):P0} with {pool}d8.");
         }
     }
 
@@ -690,6 +734,7 @@ public class RitualManager : MonoBehaviour
     // Guard / Stabilize - Warding (GDD 5.5, 5.8, 6.5)
     // =====================================================================
 
+    /// <summary>Guard for Shields: self, an ally or the Anchor within Warding range.</summary>
     /// <summary>
     /// One button for all Warding-side actions; the clicked target decides which one happens:
     ///   ally or herself         -> Guard (Shields)
@@ -707,11 +752,12 @@ public class RitualManager : MonoBehaviour
         bool started = BeginTargeting("Warding",
             u => (canWard && u is Heroine ally && !ally.IsDowned && h.InRange(Discipline.Warding, ally.GridPosition))
                  || (canWard && u == anchor && h.InRange(Discipline.Warding, anchor.GridPosition))
+                 || (canWard && u is Civilian civ && !civ.IsLost && h.InRange(Discipline.Warding, civ.GridPosition))
                  || CanAssist(h, u),
             u =>
             {
                 if (u is Heroine ally && ally.IsDowned) DoAssist(h, ally);
-                else if (u == anchor) Guard(h, anchor, stabilize: !ShiftHeld());
+                else if (u == anchor) Guard(h, anchor, stabilize: !ShiftHeld() && !h.cannotStabilize);
                 else Guard(h, u, false);
             },
             supportColor);
@@ -737,12 +783,39 @@ public class RitualManager : MonoBehaviour
         AfterPlayerAction();
     }
 
+    /// <summary>Guard with Shields on herself, an ally or a civilian (not the Anchor).</summary>
+    public void GuardAlly()
+    {
+        var h = RequireActiveHeroine();
+        if (h == null || !CanUseDiscipline(h, Discipline.Warding)) return;
+
+        if (h.cannotStabilize) { Log($"An Omen stops {h.DisplayName} from Stabilizing; she can still Shield the Anchor."); return; }
+
+        BeginTargeting("Guard",
+            u => (u is Heroine ally && !ally.IsDowned && h.InRange(Discipline.Warding, ally.GridPosition))
+                 || (u is Civilian civ && !civ.IsLost && h.InRange(Discipline.Warding, civ.GridPosition)),
+            u => Guard(h, u, false),
+            supportColor);
+    }
+
+    /// <summary>Guard on the Anchor, choosing Shields.</summary>
+    public void ShieldAnchor()
+    {
+        var h = RequireActiveHeroine();
+        if (h == null || !CanUseDiscipline(h, Discipline.Warding)) return;
+        if (!h.InRange(Discipline.Warding, anchor.GridPosition)) { Log($"The Anchor is out of {h.DisplayName}'s Warding range."); return; }
+
+        ClearInputMode();
+        Guard(h, anchor, false);
+    }
+
     /// <summary>Guard on the Anchor, choosing Stabilize: +1 Stability per Success.</summary>
     public void Stabilize()
     {
         var h = RequireActiveHeroine();
         if (h == null || !CanUseDiscipline(h, Discipline.Warding)) return;
         if (!h.InRange(Discipline.Warding, anchor.GridPosition)) { Log($"The Anchor is out of {h.DisplayName}'s Warding range."); return; }
+
         ClearInputMode();
         Guard(h, anchor, true);
     }
@@ -763,6 +836,11 @@ public class RitualManager : MonoBehaviour
         {
             ally.shields += roll.Successes;
             Log($"{h.DisplayName} guards {ally.DisplayName}: +{roll.Successes} Shield(s).");
+        }
+        else if (target is Civilian civilian)
+        {
+            civilian.shields += roll.Successes;
+            Log($"{h.DisplayName} shields {civilian.DisplayName}: +{roll.Successes} Shield(s).");
         }
         else
         {
@@ -788,7 +866,17 @@ public class RitualManager : MonoBehaviour
     // Channel - Occultism (GDD 6.5, limited by Stability 5.8)
     // =====================================================================
 
+    /// <summary>Occultism button: seals a summoning circle if she stands next to one, otherwise Channels.</summary>
     public void Occultism()
+    {
+        var h = RequireActiveHeroine();
+        if (h == null) return;
+        if (ObjectiveManager.FindSealableCircle(h.GridPosition) != null) SealCircle();
+        else ChannelAnchor();
+    }
+
+    /// <summary>Channel into the Anchor: +1 Progress per Success, limited by Stability.</summary>
+    public void ChannelAnchor()
     {
         var h = RequireActiveHeroine();
         if (h == null || !CanUseDiscipline(h, Discipline.Occultism)) return;
@@ -798,16 +886,31 @@ public class RitualManager : MonoBehaviour
             TutorialManager.Fire(TutorialTrigger.ChannelNotAdjacent, h);
             return;
         }
+
         ClearInputMode();
         RollThen(h, Discipline.Occultism, anchor, roll =>
         {
-            int amount = roll.Successes + (roll.HasCritical ? ritual.ChannelCritBonus : 0);
+            int critBonus = Mathf.Max(0, ritual.ChannelCritBonus + h.channelCritModifier);
+            int amount = roll.Successes + (roll.HasCritical ? critBonus : 0);
             int gained = ritual.AddProgress(amount);
             if (gained < amount && ritual.stability < ritual.MaxStability)
                 TutorialManager.Fire(TutorialTrigger.ChannelLimitedByStability, h);
             Log($"{h.DisplayName} Channels: +{gained} Progress{LostToStability(amount, gained)} ({ritual.progress}/{ritual.progressTarget}).");
             if (roll.IsOvercharged) Log("Overcharge: no Sigils on this map yet, so nothing extra happens.");
         });
+    }
+
+    /// <summary>Objective: Occultism next to a summoning circle weakens its seal.</summary>
+    public void SealCircle()
+    {
+        var h = RequireActiveHeroine();
+        if (h == null || !CanUseDiscipline(h, Discipline.Occultism)) return;
+        var circle = ObjectiveManager.FindSealableCircle(h.GridPosition);
+        if (circle == null) { Log($"{h.DisplayName} must stand next to a summoning circle."); return; }
+
+        ClearInputMode();
+        RollThen(h, Discipline.Occultism, null, roll =>
+            circle.AddSeal(h, roll.Successes + (roll.HasCritical ? ritual.ChannelCritBonus : 0)));
     }
 
     // =====================================================================
@@ -820,9 +923,23 @@ public class RitualManager : MonoBehaviour
         if (h == null || !CanUseDiscipline(h, Discipline.Lore)) return;
 
         BeginTargeting("Study",
-            u => u is MonsterHolder m && h.InRange(Discipline.Lore, m.GridPosition),
-            u => Study(h, (MonsterHolder)u),
+            u => (u is MonsterHolder m && h.InRange(Discipline.Lore, m.GridPosition))
+                 || (u is RestlessSpirit s && h.InRange(Discipline.Lore, s.GridPosition)),
+            u =>
+            {
+                if (u is RestlessSpirit spirit) StudySpirit(h, spirit);
+                else Study(h, (MonsterHolder)u);
+            },
             supportColor);
+    }
+
+    private void StudySpirit(Heroine h, RestlessSpirit spirit)
+    {
+        RollThen(h, Discipline.Lore, spirit, roll =>
+        {
+            if (spirit != null && spirit.Owner is RestlessSpiritObjective o)
+                o.AddInsight(h, roll.Successes + (roll.HasCritical ? 1 : 0));
+        });
     }
 
     private void Study(Heroine h, MonsterHolder m)
@@ -866,6 +983,29 @@ public class RitualManager : MonoBehaviour
         }
     }
 
+    /// <summary>Gives Insight to every enemy type in this encounter (objective rewards).</summary>
+    public void GrantInsightToAllTypes(int amount)
+    {
+        var types = spawners.Where(s => s != null).SelectMany(s => s.monsterPrefabs)
+            .Where(p => p != null).Select(p => p.Data)
+            .Concat(monsters.Where(m => m != null).Select(m => m.Data))
+            .Where(t => t != null && !IsSolved(t)).Distinct().ToList();
+        foreach (var t in types) AddInsight(t, amount);
+    }
+
+    /// <summary>Writes a line to the combat log (used by objectives).</summary>
+    public void Announce(string message) => Log(message);
+
+    public void AddMonster(MonsterHolder m)
+    {
+        if (m == null || monsters.Contains(m)) return;
+        monsters.Add(m);
+        Log($"{m.DisplayName} appears at {m.GridPosition}.");
+    }
+
+    /// <summary>Redraws intents, sliders and texts (used by objectives after changing the board).</summary>
+    public void RefreshDisplay() => RefreshAll();
+
     public bool IsSolved(Monster type) => type != null && solvedTypes.Contains(type);
     public int GetInsight(Monster type) => type != null && insight.TryGetValue(type, out int v) ? v : 0;
 
@@ -880,6 +1020,80 @@ public class RitualManager : MonoBehaviour
         if (!h.CanAct) { Log($"{h.DisplayName} has no Actions left."); return; }
 
         BeginTargeting("Assist", u => CanAssist(h, u), u => DoAssist(h, (Heroine)u), supportColor);
+    }
+
+    // =====================================================================
+    // Spell books: one entry point per action, and "can she use it right now?"
+    // =====================================================================
+
+    public bool IsChoosingTarget => mode == InputMode.Targeting;
+    public bool IsRollingDice => rolling;
+    public Heroine ActiveHeroine => turnManager != null ? turnManager.ActiveHeroine : null;
+
+    /// <summary>True if the active heroine can start this action now; otherwise the reason why not.</summary>
+    public bool CanStartSpell(SpellAction action, out string reason)
+    {
+        reason = null;
+        if (Phase != CombatPhase.PlayerPhase) { reason = "Wait for the enemies to finish."; return false; }
+        if (IsBusy) { reason = "Wait for the current action."; return false; }
+        var h = ActiveHeroine;
+        if (h == null) { reason = "Select a heroine first."; return false; }
+        if (!h.CanAct) { reason = $"{h.DisplayName} has no Actions left."; return false; }
+        var d = SpellActions.DisciplineOf(action);
+        if (d.HasValue && h.HasUsed(d.Value)) { reason = $"{h.DisplayName} already used {d.Value} this turn."; return false; }
+
+        switch (action)
+        {
+            case SpellAction.ArcaneStrike:
+                if (!monsters.Any(m => m != null && h.InRange(Discipline.Arcana, m.GridPosition)))
+                { reason = "No enemy within range."; return false; }
+                break;
+            case SpellAction.Study:
+                if (!monsters.Any(m => m != null && h.InRange(Discipline.Lore, m.GridPosition))
+                    && !ObjectiveManager.Units.OfType<RestlessSpirit>().Any(s => h.InRange(Discipline.Lore, s.GridPosition)))
+                { reason = "Nothing to Study within range."; return false; }
+                break;
+            case SpellAction.Stabilize:
+            case SpellAction.ShieldAnchor:
+                if (action == SpellAction.Stabilize && h.cannotStabilize) { reason = "An Omen stops her from Stabilizing."; return false; }
+                if (!h.InRange(Discipline.Warding, anchor.GridPosition)) { reason = "The Anchor is out of range."; return false; }
+                break;
+            case SpellAction.Assist:
+                if (!turnManager.party.Any(a => CanAssist(h, a))) { reason = "No Downed ally next to her."; return false; }
+                break;
+            case SpellAction.Channel:
+                if (!anchor.IsAdjacent(h.GridPosition)) { reason = "She must stand next to the Anchor."; return false; }
+                break;
+            case SpellAction.SealCircle:
+                if (ObjectiveManager.FindSealableCircle(h.GridPosition) == null)
+                { reason = "She must stand next to a summoning circle."; return false; }
+                break;
+        }
+        return true;
+    }
+
+    /// <summary>Starts an action chosen in a spell book. If it can't be used, logs why (and shows tutorials).</summary>
+    public void StartSpell(SpellAction action)
+    {
+        if (!CanStartSpell(action, out string reason))
+        {
+            Log(reason);
+            if (action == SpellAction.Channel && ActiveHeroine != null && Phase == CombatPhase.PlayerPhase)
+                TutorialManager.Fire(TutorialTrigger.ChannelNotAdjacent, ActiveHeroine);
+            return;
+        }
+
+        switch (action)
+        {
+            case SpellAction.ArcaneStrike: Arcana(); break;
+            case SpellAction.Guard: GuardAlly(); break;
+            case SpellAction.Stabilize: Stabilize(); break;
+            case SpellAction.ShieldAnchor: ShieldAnchor(); break;
+            case SpellAction.Assist: Assist(); break;
+            case SpellAction.Study: Lore(); break;
+            case SpellAction.Channel: ChannelAnchor(); break;
+            case SpellAction.SealCircle: SealCircle(); break;
+        }
     }
 
     // =====================================================================

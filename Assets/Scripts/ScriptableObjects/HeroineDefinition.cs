@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -16,6 +17,8 @@ public class HeroineDefinition : ScriptableObject
     public Grimoire grimoire;
     [Tooltip("Shown in the party panel (RawImage). A Texture2D or a RenderTexture both work.")]
     public Texture portrait;
+    [Tooltip("Abilities she knows from the start of the campaign (her signature abilities).")]
+    public List<AbilityDefinition> startingAbilities = new();
 
     /// <summary>Copies this definition onto a spawned heroine.</summary>
     public void ApplyTo(Heroine h)
@@ -24,5 +27,6 @@ public class HeroineDefinition : ScriptableObject
         if (!string.IsNullOrEmpty(displayName)) h.heroineName = displayName;
         if (grimoire != null) h.grimoire = grimoire;
         if (portrait != null) h.portrait = portrait;
+        foreach (var a in startingAbilities) h.Learn(a);
     }
 }

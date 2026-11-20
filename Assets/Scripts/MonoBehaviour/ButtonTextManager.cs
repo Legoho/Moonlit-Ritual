@@ -44,8 +44,8 @@ public class ButtonTextManager : MonoBehaviour
     public void ShowRoll(DiceRollResult roll)
     {
         var faces = roll.values.Select(f =>
-            DiceRules.IsCritical(f) ? $"<color=#FFC83D><b>{f}</b></color>" :
-            DiceRules.SuccessesFor(f) > 0 ? $"<color=#7CFF7C>{f}</color>" : f.ToString());
+                    DiceRules.IsCritical(f) ? $"<color=#FFC83D><b>{f}</b></color>" :
+                    roll.SuccessesOf(f) > 0 ? $"<color=#7CFF7C>{f}</color>" : f.ToString());
         string extra = roll.IsOvercharged ? " OVERCHARGE!" : roll.HasCritical ? " Critical!" : "";
         SetText(RollText, $"{roll.discipline} Roll: {string.Join(", ", faces)} = {roll.Successes}{extra}");
 

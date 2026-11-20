@@ -7,12 +7,14 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// Lives for the whole run (DontDestroyOnLoad) and owns everything that carries between encounters:
 ///   - the party the player chose (spawned into every combat scene, shown in the portraits),
-///   - the active Relics (buffs) and Omens (debuffs).
+///   - the Relics the team has found (team-wide buffs),
+///   - each heroine's Omens (lasting debuffs from ending a mission Downed) and whether she is Eclipsed,
+///   - learned abilities and Moonlight.
 ///
-/// Combat reads the combined modifier numbers through RunManager.Effects, which is all zeros when
-/// there is no RunManager, so combat scenes still work on their own.
+/// Combat reads the combined team numbers (Relics + Shared Omens of the deployed girls) through
+/// RunManager.Effects, which is all zeros when there is no RunManager, so combat scenes still work on their own.
 ///
-/// Testing a combat scene directly: put a RunManager in it and fill Party (and any Relics/Omens).
+/// Testing a combat scene directly: put a RunManager in it and fill Party (and any Relics or Omens).
 /// </summary>
 public class RunManager : MonoBehaviour
 {
@@ -31,32 +33,70 @@ public class RunManager : MonoBehaviour
     [Tooltip("On: heroines placed by hand in a combat scene are removed and replaced by the party.")]
     public bool replaceSceneHeroines = true;
 
-    [Header("Modifiers")]
-    [Tooltip("Every Relic and Omen that exists, for reward screens and random picks.")]
-    public List<RunModifier> modifierPool = new();
-    [Tooltip("Active Relics and Omens. Add some here to test them.")]
-    [SerializeField] private List<RunModifier> activeModifiers = new();
+    [Header("Relics")]
+    [Tooltip("Every Relic that exists, for rewards and random picks.")]
+    public List<Relic> relicPool = new();
+    [Tooltip("Relics the team has. Add some here to test them.")]
+    [SerializeField] private List<Relic> relics = new();
+
+    [Header("Omens")]
+    [Tooltip("Every Omen that exists. Omens are drawn from here by family.")]
+    public List<Omen> omenPool = new();
+    [Tooltip("Each heroine's Omens. Add entries here to test them.")]
+    [SerializeField] private List<HeroineOmens> heroineOmens = new();
+    [Tooltip("A heroine can carry this many Omens; one more makes her Eclipsed (GDD: 2).")]
+    public int maxOmens = 2;
+    [Tooltip("Off: Omens are never given (e.g. while testing combat).")]
+    public bool omensEnabled = true;
+
+    [Header("Abilities")]
+    [Tooltip("Every learnable ability that exists, for the Archive / research screen.")]
+    public List<AbilityDefinition> abilityLibrary = new();
+    [Tooltip("Abilities each heroine has learned during this run, on top of her starting abilities. Add some here to test them.")]
+    [SerializeField] private List<LearnedAbilities> learnedAbilities = new();
 
     [Header("Progress (read only)")]
     [SerializeField] private int encountersPlayed;
     [SerializeField] private int encountersWon;
+    [Tooltip("Research currency earned from Optional Objectives (GDD 9.4).")]
+    [SerializeField] private int moonlight;
 
     private readonly RunEffects totals = new();
     private int rerollsLeft;
 
     public IReadOnlyList<HeroineDefinition> Party => party;
     public bool HasParty => party.Any(d => d != null);
-    public IReadOnlyList<RunModifier> ActiveModifiers => activeModifiers;
-    public IEnumerable<RunModifier> Relics => activeModifiers.Where(m => m != null && m.kind == ModifierKind.Relic);
-    public IEnumerable<RunModifier> Omens => activeModifiers.Where(m => m != null && m.kind == ModifierKind.Omen);
+    public IReadOnlyList<Relic> Relics => relics;
     public int EncountersPlayed => encountersPlayed;
     public int EncountersWon => encountersWon;
+    public int Moonlight => moonlight;
 
     /// <summary>The heroines spawned for the current combat scene, in party order.</summary>
     public List<Heroine> SpawnedHeroines { get; } = new();
 
-    /// <summary>Raised when a Relic or Omen is added or removed (for a future modifier bar in the UI).</summary>
-    public event Action ModifiersChanged;
+    /// <summary>A Relic was gained or lost (for a Relic bar in the UI).</summary>
+    public event Action RelicsChanged;
+    /// <summary>A heroine's Omens changed (received, cleansed, Eclipsed).</summary>
+    public event Action<HeroineDefinition> OmensChanged;
+    public event Action MoonlightChanged;
+    /// <summary>A heroine learned an ability (for a "new spell" pop-up later).</summary>
+    public event Action<HeroineDefinition, AbilityDefinition> AbilityLearned;
+
+    [Serializable]
+    public class LearnedAbilities
+    {
+        public HeroineDefinition heroine;
+        public List<AbilityDefinition> abilities = new();
+    }
+
+    private readonly Dictionary<HeroineDefinition, Heroine> spawnedByDefinition = new();
+
+    public void AddMoonlight(int amount)
+    {
+        if (amount == 0) return;
+        moonlight = Mathf.Max(0, moonlight + amount);
+        MoonlightChanged?.Invoke();
+    }
 
     // =====================================================================
     // Lifetime
@@ -80,15 +120,18 @@ public class RunManager : MonoBehaviour
     private void OnValidate() => RecalculateEffects(); // live updates while tweaking in the Inspector
 
     /// <summary>Starts a fresh run with a new party. Clears all modifiers and progress.</summary>
-    public void StartNewRun(IEnumerable<HeroineDefinition> chosenParty, IEnumerable<RunModifier> startingModifiers = null)
+    public void StartNewRun(IEnumerable<HeroineDefinition> chosenParty, IEnumerable<Relic> startingRelics = null)
     {
         SetParty(chosenParty);
-        activeModifiers.Clear();
-        if (startingModifiers != null) activeModifiers.AddRange(startingModifiers.Where(m => m != null));
+        relics.Clear();
+        if (startingRelics != null) relics.AddRange(startingRelics.Where(r => r != null).Distinct());
+        heroineOmens.Clear();
         encountersPlayed = 0;
         encountersWon = 0;
+        moonlight = 0;
+        learnedAbilities.Clear();
         RecalculateEffects();
-        ModifiersChanged?.Invoke();
+        RelicsChanged?.Invoke();
     }
 
     // =====================================================================
@@ -142,13 +185,23 @@ public class RunManager : MonoBehaviour
                 Destroy(h.gameObject);
 
         SpawnedHeroines.Clear();
+        spawnedByDefinition.Clear();
         var anchor = FindAnyObjectByType<RitualAnchor>();
         var grid = GridManager.Instance;
 
-        int i = 0;
+        // Eclipsed heroines cannot deploy (GDD Omens). Shared Omens count for the girls who do.
+        var deploying = new List<HeroineDefinition>();
         foreach (var def in party)
         {
             if (def == null) continue;
+            if (IsEclipsed(def)) { Debug.LogWarning($"[Run] {def.displayName} is Eclipsed and cannot deploy until she is cleansed."); continue; }
+            deploying.Add(def);
+        }
+        RecalculateEffects(deploying);
+
+        int i = 0;
+        foreach (var def in deploying)
+        {
             if (def.prefab == null)
             {
                 Debug.LogError($"[Run] {def.name} has no prefab assigned.");
@@ -158,13 +211,56 @@ public class RunManager : MonoBehaviour
             var heroine = Instantiate(def.prefab, SpawnPosition(i, anchor, grid), def.prefab.transform.rotation);
             heroine.name = def.displayName;
             def.ApplyTo(heroine);
+            foreach (var a in LearnedBy(def)) heroine.Learn(a);
             ApplyHeroineEffects(heroine);
+            foreach (var o in OmensOf(def)) o.omen.ApplyTo(heroine, o);
             SpawnedHeroines.Add(heroine);
+            spawnedByDefinition[def] = heroine;
             i++;
         }
 
         turnManager.SetParty(SpawnedHeroines);
         Debug.Log($"[Run] Spawned party: {string.Join(", ", SpawnedHeroines.Select(h => h.DisplayName))}.");
+    }
+
+    // =====================================================================
+    // Abilities learned during the run
+    // =====================================================================
+
+    private IEnumerable<AbilityDefinition> LearnedBy(HeroineDefinition h) =>
+        learnedAbilities.Where(l => l != null && l.heroine == h).SelectMany(l => l.abilities).Where(a => a != null);
+
+    /// <summary>Starting abilities plus everything she learned this run.</summary>
+    public IEnumerable<AbilityDefinition> KnownAbilities(HeroineDefinition h) =>
+        h == null ? Enumerable.Empty<AbilityDefinition>() : h.startingAbilities.Where(a => a != null).Concat(LearnedBy(h)).Distinct();
+
+    public bool KnowsAbility(HeroineDefinition h, AbilityDefinition a) => a != null && KnownAbilities(h).Contains(a);
+
+    /// <summary>Library abilities she could still learn (not known yet, and allowed for her).</summary>
+    public List<AbilityDefinition> LearnableAbilities(HeroineDefinition h) =>
+        abilityLibrary.Where(a => a != null && a.CanBeLearnedBy(h) && !KnowsAbility(h, a)).ToList();
+
+    /// <summary>
+    /// Teaches a heroine an ability for the rest of the run. If she is in the current combat scene,
+    /// it appears in her spell book straight away. Returns false if she already knows it or can't learn it.
+    /// </summary>
+    public bool LearnAbility(HeroineDefinition h, AbilityDefinition a)
+    {
+        if (h == null || a == null || KnowsAbility(h, a)) return false;
+        if (!a.CanBeLearnedBy(h))
+        {
+            Debug.LogWarning($"[Run] {h.displayName} can't learn {a.displayName}.");
+            return false;
+        }
+
+        var entry = learnedAbilities.FirstOrDefault(l => l != null && l.heroine == h);
+        if (entry == null) learnedAbilities.Add(entry = new LearnedAbilities { heroine = h });
+        entry.abilities.Add(a);
+
+        if (spawnedByDefinition.TryGetValue(h, out var spawned) && spawned != null) spawned.Learn(a);
+        Debug.Log($"[Run] {h.displayName} learned {a.displayName}.");
+        AbilityLearned?.Invoke(h, a);
+        return true;
     }
 
     private void ApplyHeroineEffects(Heroine h)
@@ -190,67 +286,167 @@ public class RunManager : MonoBehaviour
     }
 
     // =====================================================================
-    // Relics and Omens
+    // Relics
     // =====================================================================
 
-    public bool Has(RunModifier modifier) => activeModifiers.Contains(modifier);
+    public bool HasRelic(Relic relic) => relics.Contains(relic);
 
-    /// <summary>Adds a Relic or Omen. The same one can't be active twice.</summary>
-    public bool AddModifier(RunModifier modifier)
+    /// <summary>Gives the team a Relic. The same one can't be held twice.</summary>
+    public bool AddRelic(Relic relic)
     {
-        if (modifier == null || activeModifiers.Contains(modifier)) return false;
-        activeModifiers.Add(modifier);
+        if (relic == null || relics.Contains(relic)) return false;
+        relics.Add(relic);
         RecalculateEffects();
-        Debug.Log($"[Run] Gained {modifier.kind}: {modifier.displayName}.");
-        ModifiersChanged?.Invoke();
+        Debug.Log($"[Run] Found Relic: {relic.displayName}.");
+        RelicsChanged?.Invoke();
         return true;
     }
 
-    public bool RemoveModifier(RunModifier modifier)
+    public bool RemoveRelic(Relic relic)
     {
-        if (!activeModifiers.Remove(modifier)) return false;
+        if (!relics.Remove(relic)) return false;
         RecalculateEffects();
-        ModifiersChanged?.Invoke();
+        RelicsChanged?.Invoke();
         return true;
     }
+
+    /// <summary>Random Relics the team doesn't have yet, e.g. three choices for a reward screen.</summary>
+    public List<Relic> RollRelicChoices(int count, RelicRarity? rarity = null) =>
+        relicPool.Where(r => r != null && r.inRewardPool && !relics.Contains(r) && (!rarity.HasValue || r.rarity == rarity.Value))
+                 .OrderBy(_ => UnityEngine.Random.value)
+                 .Take(count)
+                 .ToList();
+
+    /// <summary>Gives one random Relic the team doesn't have (e.g. an Elite Guardian's cache). Null if none are left.</summary>
+    public Relic GrantRandomRelic()
+    {
+        var relic = RollRelicChoices(1).FirstOrDefault();
+        if (relic != null) AddRelic(relic);
+        return relic;
+    }
+
+    // =====================================================================
+    // Omens (GDD: lasting debuffs from ending a mission Downed)
+    // =====================================================================
+
+    private HeroineOmens RecordOf(HeroineDefinition h, bool create)
+    {
+        var rec = heroineOmens.FirstOrDefault(r => r != null && r.heroine == h);
+        if (rec == null && create && h != null) heroineOmens.Add(rec = new HeroineOmens { heroine = h });
+        return rec;
+    }
+
+    public IReadOnlyList<OmenInstance> OmensOf(HeroineDefinition h)
+    {
+        var rec = RecordOf(h, false);
+        return rec != null ? rec.omens.Where(o => o != null && o.omen != null).ToList() : new List<OmenInstance>();
+    }
+
+    public bool IsEclipsed(HeroineDefinition h) => RecordOf(h, false)?.eclipsed ?? false;
+
+    /// <summary>"Eclipse risk": one more Omen would Eclipse her.</summary>
+    public bool AtEclipseRisk(HeroineDefinition h) => !IsEclipsed(h) && OmensOf(h).Count >= maxOmens;
 
     /// <summary>
-    /// Random modifiers of one kind that aren't active yet, e.g. three Relic choices for a reward screen
-    /// or one Omen for the next encounter.
+    /// Gives a heroine an Omen of a family (null = any family, e.g. Downed by a boss or hazard),
+    /// drawn at random from the pool, excluding ones she has. Respects the GDD rule of at most one
+    /// threshold-changing Omen per heroine. If she already carries the maximum, she becomes Eclipsed instead.
+    /// Returns the Omen received (null if Eclipsed or none could be drawn).
     /// </summary>
-    public List<RunModifier> RollChoices(ModifierKind kind, int count)
+    public Omen GiveOmen(HeroineDefinition h, EnemyCategory? family)
     {
-        return modifierPool
-            .Where(m => m != null && m.kind == kind && !activeModifiers.Contains(m))
-            .OrderBy(_ => UnityEngine.Random.value)
-            .Take(count)
-            .ToList();
+        if (h == null || !omensEnabled) return null;
+        var rec = RecordOf(h, true);
+        if (rec.eclipsed) return null;
+
+        if (rec.omens.Count(o => o?.omen != null) >= maxOmens)
+        {
+            rec.eclipsed = true;
+            Debug.LogWarning($"[Run] {h.displayName} is ECLIPSED: she cannot deploy until a Cleansing Rite removes all her Omens.");
+            OmensChanged?.Invoke(h);
+            RecalculateEffects();
+            return null;
+        }
+
+        bool hasThreshold = rec.omens.Any(o => o?.omen != null && o.omen.rules.ChangesThreshold);
+        var candidates = omenPool.Where(o => o != null && o.inDrawPool
+                                             && (!family.HasValue || o.family == family.Value)
+                                             && !rec.omens.Any(x => x?.omen == o)
+                                             && !(hasThreshold && o.rules.ChangesThreshold)).ToList();
+        if (candidates.Count == 0)
+        {
+            Debug.LogWarning($"[Run] No {(family.HasValue ? family.Value + " " : "")}Omen left to give {h.displayName}.");
+            return null;
+        }
+        return AddOmen(h, candidates[UnityEngine.Random.Range(0, candidates.Count)]);
     }
 
-    private void RecalculateEffects()
+    /// <summary>Gives a specific Omen (story, testing). Returns it, or null if she already has it.</summary>
+    public Omen AddOmen(HeroineDefinition h, Omen omen)
     {
-        // Reset to zero, then add every active modifier.
+        if (h == null || omen == null) return null;
+        var rec = RecordOf(h, true);
+        if (rec.omens.Any(o => o?.omen == omen)) return null;
+
+        var instance = new OmenInstance
+        {
+            omen = omen,
+            discipline = omen.rules.randomThresholdDiscipline
+                ? (Discipline)UnityEngine.Random.Range(0, Enum.GetValues(typeof(Discipline)).Length)
+                : omen.rules.thresholdDiscipline
+        };
+        rec.omens.Add(instance);
+        string where = omen.rules.ChangesThreshold ? $" ({instance.discipline})" : "";
+        Debug.Log($"[Run] {h.displayName} receives the {omen.family} Omen {omen.displayName}{where}.");
+        RecalculateEffects();
+        OmensChanged?.Invoke(h);
+        return omen;
+    }
+
+    /// <summary>Cleansing Rite: removes one Omen of the player's choice.</summary>
+    public bool CleanseOmen(HeroineDefinition h, Omen omen)
+    {
+        var rec = RecordOf(h, false);
+        if (rec == null || rec.omens.RemoveAll(o => o?.omen == omen) == 0) return false;
+        Debug.Log($"[Run] {h.displayName} is cleansed of {omen.displayName}.");
+        RecalculateEffects();
+        OmensChanged?.Invoke(h);
+        return true;
+    }
+
+    /// <summary>The longer Rite for an Eclipsed heroine: removes all her Omens and the Eclipse.</summary>
+    public void CleanseAll(HeroineDefinition h)
+    {
+        var rec = RecordOf(h, false);
+        if (rec == null) return;
+        rec.omens.Clear();
+        rec.eclipsed = false;
+        Debug.Log($"[Run] {h.displayName} is cleansed of every Omen.");
+        RecalculateEffects();
+        OmensChanged?.Invoke(h);
+    }
+
+    /// <summary>The family a Downed heroine would receive if the mission ended now (for a marker on her portrait).</summary>
+    public static EnemyCategory? PendingOmenFamily(Heroine h) => h != null && h.IsDowned ? h.downedBy : null;
+
+    // =====================================================================
+    // Team numbers
+    // =====================================================================
+
+    /// <summary>Relics + Shared Omens of the deploying heroines (default: the current party, minus Eclipsed girls).</summary>
+    private void RecalculateEffects(IEnumerable<HeroineDefinition> deploying = null)
+    {
+        deploying ??= spawnedByDefinition.Count > 0
+            ? spawnedByDefinition.Keys
+            : party.Where(d => d != null && !IsEclipsed(d));
+
         var fresh = new RunEffects();
-        foreach (var m in activeModifiers)
-            if (m != null) fresh.Add(m.effects);
-        CopyInto(fresh, totals);
-    }
-
-    private static void CopyInto(RunEffects from, RunEffects to)
-    {
-        to.turnCapacity = from.turnCapacity;
-        to.startingStability = from.startingStability;
-        to.maxStability = from.maxStability;
-        to.anchorPassiveProgress = from.anchorPassiveProgress;
-        to.channelCritBonus = from.channelCritBonus;
-        to.capacityRestoresPerRound = from.capacityRestoresPerRound;
-        to.maxResolve = from.maxResolve;
-        to.moveRange = from.moveRange;
-        to.abilityRange = from.abilityRange;
-        to.successThreshold = from.successThreshold;
-        to.emptyRollRerolls = from.emptyRollRerolls;
-        to.enemyMovement = from.enemyMovement;
-        to.extraSpawnsPerRound = from.extraSpawnsPerRound;
+        foreach (var r in relics)
+            if (r != null) fresh.Add(r.effects);
+        foreach (var def in deploying.Distinct())
+            foreach (var o in OmensOf(def))
+                if (o.omen.scope == OmenScope.Shared) fresh.Add(o.omen.teamEffects);
+        totals.CopyFrom(fresh);
     }
 
     // =====================================================================
@@ -261,31 +457,49 @@ public class RunManager : MonoBehaviour
     public void OnEncounterStart(RitualManager ritualManager)
     {
         rerollsLeft = totals.emptyRollRerolls;
-        foreach (var m in activeModifiers.ToList())
-            if (m != null) m.OnEncounterStart(ritualManager);
+        foreach (var r in relics.ToList())
+            if (r != null) r.OnEncounterStart(ritualManager);
+        foreach (var (h, o) in DeployedOmens())
+            o.OnEncounterStart(ritualManager, h);
     }
 
     public void OnRoundStart(RitualManager ritualManager, int round)
     {
-        foreach (var m in activeModifiers.ToList())
-            if (m != null) m.OnRoundStart(ritualManager, round);
+        foreach (var r in relics.ToList())
+            if (r != null) r.OnRoundStart(ritualManager, round);
+        foreach (var (h, o) in DeployedOmens())
+            o.OnRoundStart(ritualManager, h, round);
     }
 
-    /// <summary>RitualManager calls this on victory or defeat. Encounter-only modifiers expire here.</summary>
+    /// <summary>RitualManager calls this on victory or defeat. Heroines still Downed receive an Omen.</summary>
     public void OnEncounterEnd(RitualManager ritualManager, bool won)
     {
         encountersPlayed++;
         if (won) encountersWon++;
 
-        foreach (var m in activeModifiers.ToList())
-            if (m != null) m.OnEncounterEnd(ritualManager, won);
+        foreach (var r in relics.ToList())
+            if (r != null) r.OnEncounterEnd(ritualManager, won);
+        foreach (var (h, o) in DeployedOmens())
+            o.OnEncounterEnd(ritualManager, h, won);
 
-        int removed = activeModifiers.RemoveAll(m => m != null && m.duration == ModifierDuration.NextEncounter);
-        if (removed > 0)
+        // GDD: a girl who is Downed when the mission ends (won or lost) receives one Omen.
+        // A girl who was revived and is standing receives none.
+        foreach (var pair in spawnedByDefinition.ToList())
         {
-            RecalculateEffects();
-            ModifiersChanged?.Invoke();
+            var h = pair.Value;
+            if (h == null || !h.IsDowned) continue;
+            var omen = GiveOmen(pair.Key, h.downedBy);
+            if (omen != null) ritualManager.Announce($"{h.DisplayName} fell and carries a mark back: {omen.displayName}. {omen.description}");
+            else if (IsEclipsed(pair.Key)) ritualManager.Announce($"{h.DisplayName} is ECLIPSED and must be cleansed before she can fight again.");
         }
+    }
+
+    private IEnumerable<(Heroine, Omen)> DeployedOmens()
+    {
+        foreach (var pair in spawnedByDefinition.ToList())
+            if (pair.Value != null)
+                foreach (var o in OmensOf(pair.Key))
+                    yield return (pair.Value, o.omen);
     }
 
     /// <summary>DiceRollManager asks this when a roll has 0 Successes. True = reroll it.</summary>

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 using static UnityEngine.GraphicsBuffer;
 
 /// <summary>
@@ -25,6 +26,26 @@ public class Heroine : GridUnit
     public float wardingRange = 3f;
     public float loreRange = 3f;
 
+    [Header("Omens (set when spawned; read only)")]
+    public List<Omen> omens = new();
+    [Tooltip("Dim Circle: her Guard on the Anchor can only give Shields.")]
+    public bool cannotStabilize;
+    [Tooltip("Added to the ritual's Channel Critical bonus for her (Hollow Voice: -1).")]
+    public int channelCritModifier;
+    [Tooltip("Bleeding Sigil: Progress the ritual loses when she is Downed.")]
+    public int progressLostWhenDowned;
+    /// <summary>Category of the enemy that Downed her this encounter (decides the Omen family). Null = not Downed by an enemy.</summary>
+    [System.NonSerialized] public EnemyCategory? downedBy;
+    private readonly Dictionary<Discipline, int> thresholdOffsets = new();
+
+    /// <summary>Her personal Success Threshold change for one discipline (Trembling Hand: +1).</summary>
+    public int ThresholdOffset(Discipline d) => thresholdOffsets.TryGetValue(d, out int v) ? v : 0;
+    public void AddThresholdOffset(Discipline d, int amount) => thresholdOffsets[d] = ThresholdOffset(d) + amount;
+
+    [Header("Abilities")]
+    [Tooltip("Abilities she knows; they appear in their discipline's spell book. Filled from her " +
+            "HeroineDefinition and the run when spawned; set by hand for heroines placed in a scene.")]
+    public List<AbilityDefinition> abilities = new();
     [Header("Visuals (optional)")]
     [SerializeField] private GameObject selectionHighlight;
 
@@ -100,7 +121,16 @@ public class Heroine : GridUnit
     }
 
     public bool HasUsed(Discipline d) => usedDisciplines.Contains(d);
+    public bool Knows(AbilityDefinition a) => a != null && abilities.Contains(a);
 
+    /// <summary>Her abilities for one spell book.</summary>
+    public IEnumerable<AbilityDefinition> AbilitiesOf(Discipline d) => abilities.Where(a => a != null && a.discipline == d);
+
+    /// <summary>Adds an ability (does nothing if she already knows it).</summary>
+    public void Learn(AbilityDefinition a)
+    {
+        if (a != null && !abilities.Contains(a)) abilities.Add(a);
+    }
     /// <summary>Spends one Action. Pass null for non-discipline actions such as Assist.</summary>
     public void SpendAction(Discipline? discipline)
     {
@@ -162,6 +192,7 @@ public class Heroine : GridUnit
         resolve = maxResolve;
         shields = 0;
         hasBeenRevived = false;
+        downedBy = null;
         BeginTurn();
     }
 

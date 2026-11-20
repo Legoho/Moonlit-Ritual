@@ -19,6 +19,11 @@ MonoBehaviour:
   solvedResistance: 1
   loreToSolve: 3
   stabilityDamage: 2
-  isSolved: 1
+  category: 0
+  movement: 2
+  attackRange: 1
+  heroineDamage: 1
+  targetPreference: 0
+  isSolved: 0
   monsterSprite: {fileID: 0}
   monsterHighlightSprite: {fileID: 0}

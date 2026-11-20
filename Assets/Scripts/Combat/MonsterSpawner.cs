@@ -23,17 +23,22 @@ public class MonsterSpawner : MonoBehaviour
 
     public Vector2Int Tile => GridManager.Instance.WorldToGrid(transform.position);
 
+    /// <summary>Set by the Stop the Summoning objective. A sealed spawner spawns nothing.</summary>
+    [System.NonSerialized] public bool isSealed;
+
     public void ResetSpawner()
     {
         nextIndex = 0;
         spawnCount = 0;
+        isSealed = false;
     }
 
     public List<MonsterHolder> SpawnForRound(int round)
     {
         var spawned = new List<MonsterHolder>();
         var grid = GridManager.Instance;
-        if (grid == null || round < firstSpawnRound || monsterPrefabs.Count == 0) return spawned;
+        int firstRound = Mathf.Max(0, firstSpawnRound - RunManager.Effects.reinforcementsEarlier);
+        if (isSealed || grid == null || round < firstRound || monsterPrefabs.Count == 0) return spawned;
 
         int count = monstersPerRound + RunManager.Effects.extraSpawnsPerRound;
         for (int i = 0; i < count; i++)

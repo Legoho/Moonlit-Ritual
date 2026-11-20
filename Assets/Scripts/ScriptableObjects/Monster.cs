@@ -5,6 +5,11 @@ public enum TargetPreference
     Heroine, // hits a reachable heroine; otherwise the Anchor if reachable; otherwise walks toward the nearest heroine
     Nearest  // whichever target is fewest steps away (Anchor wins ties)
 }
+public enum EnemyCategory 
+{
+    Assault,
+    Sabotage,
+    Control }
 [CreateAssetMenu(fileName = "Monster", menuName = "Scriptable Objects/Monster")]
 public class Monster : ScriptableObject
 {
@@ -14,6 +19,8 @@ public class Monster : ScriptableObject
     public int solvedResistance;  // Resolve once its type is Solved
     public int loreToSolve;       // Insight needed to Solve the type
     public int stabilityDamage;   // Turn Capacity lost when it hits the Anchor unblocked
+    [Tooltip("Assault, Sabotage or Control. A heroine it Downs receives an Omen of this family.")]
+    public EnemyCategory category = EnemyCategory.Assault;
 
     [Header("Grid behaviour")]
     public int movement = 2;

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6644fc7a20b38dc43a888ef28d139ddf, type: 3}
+  m_Name: Objective_SaveCivilians
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectiveDefinition
+  title: Save the Civilians
+  description: Students and their pets are hiding from the shadows. Keep them alive
+    until the ritual is complete.
+  icon: {fileID: 0}
+  disciplines: 01000000
+  moonlightReward: 2
+  bonus:
+    restoreTurnCapacity: 1
+    stability: 0
+    healResolve: 0
+    shieldsForParty: 0
+    insightAllEnemyTypes: 0
+    relics: 0

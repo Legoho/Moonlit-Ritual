@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public enum IntentTargetType { None, Anchor, Heroine }
+public enum IntentTargetType { None, Anchor, Heroine, Other } // Other = civilians and other objective units
 
 /// <summary>
 /// A telegraphed enemy action (GDD 2.1): who it targets and the path it will walk this round.
@@ -51,7 +51,7 @@ public static class EnemyPlanner
     /// Heroines standing in the way block paths, so surrounding the Anchor forces enemies onto the girls.
     /// </summary>
     public static EnemyIntent Plan(MonsterHolder monster, GridManager grid, RitualAnchor anchor,
-        IEnumerable<Heroine> heroines, ISet<Vector2Int> reservedTiles)
+        IEnumerable<Heroine> heroines, ISet<Vector2Int> reservedTiles, IEnumerable<GridUnit> otherTargets = null)
     {
         var intent = new EnemyIntent { monster = monster, targetType = IntentTargetType.None };
         if (monster == null || grid == null) return intent;
@@ -83,9 +83,15 @@ public static class EnemyPlanner
             .Select(h => Evaluate(h, IntentTargetType.Heroine))
             .Where(o => o.reachable)
             .ToList();
+        // Civilians and other objective units are hunted like heroines.
+        if (otherTargets != null)
+            heroOpts.AddRange(otherTargets
+                .Where(t => t != null && t.IsOnGrid)
+                .Select(t => Evaluate(t, IntentTargetType.Other))
+                .Where(o => o.reachable));
 
         Option bestHeroHit = heroOpts.Where(o => o.CanHitThisRound)
-            .OrderBy(o => o.steps).ThenBy(o => ((Heroine)o.target).resolve).FirstOrDefault();
+            .OrderBy(o => o.steps).ThenBy(o => TargetResolve(o.target)).FirstOrDefault();
         Option nearestHero = heroOpts.OrderBy(o => o.steps).FirstOrDefault();
         bool anchorHit = anchorOpt != null && anchorOpt.CanHitThisRound;
         bool anchorReachable = anchorOpt != null && anchorOpt.reachable;
@@ -148,9 +154,12 @@ public static class EnemyPlanner
         }
     }
 
+    private static int TargetResolve(GridUnit u) =>
+        u is Heroine h ? h.resolve : u is Civilian c ? c.resolve : int.MaxValue;
+
     public static bool CanHitFrom(EnemyIntent intent, Vector2Int from)
     {
-        if (intent.target == null) return false;
+        if (intent.target == null || !intent.target.IsOnGrid) return false;
         if (intent.TargetHeroine != null && intent.TargetHeroine.IsDowned) return false;
         int range = GridManager.Distance(from, intent.target.GridPosition);
         return range >= 1 && range <= intent.monster.AttackRange;

@@ -35,7 +35,10 @@ public class RitualState
 
     // ---------- Effective values (base + Relics and Omens) ----------
 
-    public int StartingTurnCapacity => Mathf.Max(1, startingTurnCapacity + fx.turnCapacity);
+    public int StartingTurnCapacity => fx.turnCapacity < 0
+        ? Mathf.Max(Mathf.Min(startingTurnCapacity, TurnCapacityFloor), startingTurnCapacity + fx.turnCapacity)
+        : Mathf.Max(1, startingTurnCapacity + fx.turnCapacity);
+    public const int TurnCapacityFloor = 10;
     public int StartingStability => Mathf.Clamp(startingStability + fx.startingStability, 0, MaxStability);
     public int MaxStability => Mathf.Max(1, maxStability + fx.maxStability);
     public int AnchorPassiveProgress => Mathf.Max(0, anchorPassiveProgress + fx.anchorPassiveProgress);
